@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AulaNet</title>
+    <link rel="stylesheet" href="estilo.css">
+</head>
+
+<body>
+    <div class="container">
+        <header class="main-header">
+            <div class="logo">
+                <h1>AulaNet</h1>
+            </div>
+            <div class="user-info">
+                <span class="user-name">Prof. Jorge Angel Santamaria Magaña</span>
+                <button class="btn btn-logout">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            <!-- Sidebar - Fixed left column -->
+            <div class="sidebar">
+                <!-- Course selector -->
+                <div class="course-selector">
+                    <h2>Selección de Materia</h2>
+                    <div class="combo-box">
+                        <!-- Botón para desplegar el combo -->
+                        <div class="combo-box-button" id="comboBoxButton">
+                            Seleccione una materia
+
+                        </div>
+
+                        <!-- Contenedor de las opciones -->
+                        <div class="combo-box-options" id="comboBoxOptions">
+                            <!-- Encabezados -->
+                            <div class="custom-header">
+                                <div>Clave</div>
+                                <div>Grupo</div>
+                                <div>Materia</div>
+                                <div>Parcial</div>
+                                <div>Asistencis</div>
+                            </div>
+
+                            <!-- Opciones -->
+                        </div>
+                    </div>
+
+                    <div class="teacher-info">
+                        <p><strong>Catedrático:</strong> <span id="teacher-id">136</span></p>
+                        <p><strong>Nombre:</strong> <span id="teacher-name">Jorge Angel Santamaria Magaña</span></p>
+                    </div>
+
+                    <div class="formula-section">
+                        <label for="formula-input">Fórmula de Calificación Final:</label>
+                        <input type="text" id="formula-input" placeholder="Ej: (P1*0.3)+(P2*0.3)+(P3*0.4)">
+                        <!-- Eliminados los botones de fórmulas guardadas y copiar fórmula -->
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="btn-aperturar" class="btn btn-primary">Aperturar Parcial</button>
+                        <button id="btn-actividades" class="btn btn-secondary">Gestionar Actividades</button>
+                    </div>
+                </div>
+
+                <!-- Parcial selector -->
+                <div class="parcial-selector">
+                    <h3>Parciales</h3>
+                    <div class="parcial-controls">
+                        <select id="parcial-select">
+                            <option value="1">Parcial 1</option>
+                            <option value="2">Parcial 2</option>
+                            <option value="3">Parcial 3</option>
+                        </select>
+                        <div class="period-info">
+                            <span>Periodo: <strong>2241</strong></span>
+                            <span>AGO24-ENE25</span>
+                        </div>
+                        <button id="btn-listar" class="btn btn-list">
+                            Listar
+                        </button>
+                    </div>
+
+                    <div class="parcial-table-container">
+                        <table class="parcial-table">
+                            <thead>
+                                <tr>
+                                    <th>Parcial</th>
+                                    <th>Fecha</th>
+                                    <th>Asistencias</th>
+                                    <th>Fórmula</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>15/09/2024</td>
+                                    <td>95%</td>
+                                    <td>(S*0.4)+(H*0.5)+(S*0.1)</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>20/10/2024</td>
+                                    <td>92%</td>
+                                    <td>(S*0.4)+(H*0.5)+(S*0.1)</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>--/--/----</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main content - Right side with students list -->
+            <div class="main-content">
+                <div class="students-section">
+                    <h3>Listado de Alumnos</h3>
+                    <div class="table-container">
+                        <table id="students-table" class="students-table">
+                            <thead>
+                                <tr>
+                                    <th>No. Lista</th>
+                                    <th>No. Control</th>
+                                    <th>Nombre del Alumno</th>
+                                </tr>
+                            </thead>
+                            <tbody id="students-body">
+                                <!-- Student data will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para apertura de parcial -->
+    <div id="modal-parcial" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Apertura de Parcial</h2>
+                <button id="btn-edit-criterios" class="btn btn-edit">
+                    <i class="icon-edit"></i> Editar criterios
+                </button>
+                <span class="close-modal">&times;</span>
+            </div>
+
+            <form id="form-parcial">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="materia-id">ID Materia:</label>
+                        <input type="text" id="materia-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="grupo-id">Grupo:</label>
+                        <input type="text" id="grupo-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="clave-id">Clave:</label>
+                        <input type="text" id="clave-id" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="numero-parcial">Número de Parcial:</label>
+                        <input type="number" id="numero-parcial" min="1" max="5" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="periodo-id">Periodo:</label>
+                        <input type="text" id="periodo-id" required>
+                    </div>
+                </div>
+
+                <div class="form-row criterios">
+                    <div class="form-group">
+                        <label for="saber-percent">% Saber:</label>
+                        <input type="number" id="saber-percent" min="0" max="100" value="40" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="hacer-percent">% Hacer:</label>
+                        <input type="number" id="hacer-percent" min="0" max="100" value="50" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="ser-percent">% Ser:</label>
+                        <input type="number" id="ser-percent" min="0" max="100" value="10" readonly>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="total-percent">Σ del Parcial:</label>
+                        <input type="number" id="total-percent" value="100" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="restante-percent">% Restante:</label>
+                        <input type="number" id="restante-percent" value="0" readonly>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fecha-apertura">Fecha de apertura:</label>
+                        <input type="date" id="fecha-apertura" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha-cierre">Fecha de cierre:</label>
+                        <input type="date" id="fecha-cierre" required>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="btn-cancelar">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Aperturar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
