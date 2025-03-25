@@ -503,7 +503,7 @@ body {
 
 /* Icono de flecha */
 .combo-box-button::after {
-  content: url(flecha.svg);
+  content: url(assets/flecha.svg);
   float: right;
 }
 

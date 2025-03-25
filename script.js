@@ -3,7 +3,7 @@ const materiaSelect = document.getElementById("materia-select");
 const parcialSelect = document.getElementById("parcial-select");
 const btnListar = document.getElementById("btn-listar");
 const studentsTable = document.getElementById("students-table");
-const studentsBody = document.getElementById("students-body");
+// const studentsBody = document.getElementById("students-body");
 const btnAperturar = document.getElementById("btn-aperturar");
 const modalParcial = document.getElementById("modal-parcial");
 const closeModal = document.querySelector(".close-modal");
@@ -35,37 +35,37 @@ let attendanceColumnVisible = false;
 
 // Initialize the page
 function init() {
-  populateStudentsTable();
+  // populateStudentsTable();
   setupEventListeners();
   setupFormValidation();
 }
 
 // Populate students table with data
-function populateStudentsTable() {
-  studentsBody.innerHTML = "";
+// function populateStudentsTable() {
+//   studentsBody.innerHTML = "";
 
-  students.forEach((student) => {
-    const row = document.createElement("tr");
+//   students.forEach((student) => {
+//     const row = document.createElement("tr");
 
-    // Create cells for list number, control number, and name
-    const listNumCell = document.createElement("td");
-    listNumCell.textContent = student.id;
+//     // Create cells for list number, control number, and name
+//     const listNumCell = document.createElement("td");
+//     listNumCell.textContent = student.id;
 
-    const controlNumCell = document.createElement("td");
-    controlNumCell.textContent = student.controlNum;
+//     const controlNumCell = document.createElement("td");
+//     controlNumCell.textContent = student.controlNum;
 
-    const nameCell = document.createElement("td");
-    nameCell.textContent = student.name;
+//     const nameCell = document.createElement("td");
+//     nameCell.textContent = student.name;
 
-    // Append cells to row
-    row.appendChild(listNumCell);
-    row.appendChild(controlNumCell);
-    row.appendChild(nameCell);
+//     // Append cells to row
+//     row.appendChild(listNumCell);
+//     row.appendChild(controlNumCell);
+//     row.appendChild(nameCell);
 
-    // Append row to table body
-    studentsBody.appendChild(row);
-  });
-}
+//     // Append row to table body
+//     studentsBody.appendChild(row);
+//   });
+// }
 
 // Set up event listeners
 function setupEventListeners() {
@@ -278,7 +278,7 @@ function formatDate(date) {
 // Initialize the page when DOM is loaded
 document.addEventListener("DOMContentLoaded", init);
 
-fetch("materias.php")
+fetch("php/materias.php")
   .then((response) => {
     if (!response.ok) {
       throw new Error("Error al obtener los datos");
@@ -317,7 +317,7 @@ function generarMaterias(options) {
       comboBoxOptions.style.display = "none";
       materiaSeleccionada = this.getAttribute("data-value");
       grupo = this.getAttribute("data-grupo");
-      const url = `ejemplo.php?materia=${encodeURIComponent(
+      const url = `php/ejemplo.php?materia=${encodeURIComponent(
         materiaSeleccionada
       )}&grupo=${encodeURIComponent(grupo)}`;
       console.log(url);
