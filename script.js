@@ -3,32 +3,13 @@ const materiaSelect = document.getElementById("materia-select");
 const parcialSelect = document.getElementById("parcial-select");
 const btnListar = document.getElementById("btn-listar");
 const studentsTable = document.getElementById("students-table");
-// const studentsBody = document.getElementById("students-body");
+const studentsBody = document.getElementById("datos");
 const btnAperturar = document.getElementById("btn-aperturar");
 const modalParcial = document.getElementById("modal-parcial");
 const closeModal = document.querySelector(".close-modal");
 const btnCancelar = document.getElementById("btn-cancelar");
 const formParcial = document.getElementById("form-parcial");
 const btnEditCriterios = document.getElementById("btn-edit-criterios");
-
-// Sample student data
-const students = [
-  { id: 1, controlNum: "20210001", name: "Ana García Martínez" },
-  { id: 2, controlNum: "20210002", name: "Carlos López Sánchez" },
-  { id: 3, controlNum: "20210003", name: "María Rodríguez Pérez" },
-  { id: 4, controlNum: "20210004", name: "Juan Hernández González" },
-  { id: 5, controlNum: "20210005", name: "Laura Díaz Ramírez" },
-  { id: 6, controlNum: "20210006", name: "Roberto Flores Torres" },
-  { id: 7, controlNum: "20210007", name: "Sofía Vázquez Reyes" },
-  { id: 8, controlNum: "20210008", name: "Daniel Morales Castro" },
-  { id: 9, controlNum: "20210009", name: "Patricia Ortiz Mendoza" },
-  { id: 10, controlNum: "20210010", name: "Miguel Ángel Ruiz Vargas" },
-  { id: 11, controlNum: "20210011", name: "Gabriela Jiménez Lara" },
-  { id: 12, controlNum: "20210012", name: "Alejandro Romero Silva" },
-  { id: 13, controlNum: "20210013", name: "Fernanda Torres Navarro" },
-  { id: 14, controlNum: "20210014", name: "Eduardo Gutiérrez Ríos" },
-  { id: 15, controlNum: "20210015", name: "Valeria Sánchez Acosta" },
-];
 
 // Flag to track if attendance column is visible
 let attendanceColumnVisible = false;
@@ -40,41 +21,8 @@ function init() {
   setupFormValidation();
 }
 
-// Populate students table with data
-// function populateStudentsTable() {
-//   studentsBody.innerHTML = "";
-
-//   students.forEach((student) => {
-//     const row = document.createElement("tr");
-
-//     // Create cells for list number, control number, and name
-//     const listNumCell = document.createElement("td");
-//     listNumCell.textContent = student.id;
-
-//     const controlNumCell = document.createElement("td");
-//     controlNumCell.textContent = student.controlNum;
-
-//     const nameCell = document.createElement("td");
-//     nameCell.textContent = student.name;
-
-//     // Append cells to row
-//     row.appendChild(listNumCell);
-//     row.appendChild(controlNumCell);
-//     row.appendChild(nameCell);
-
-//     // Append row to table body
-//     studentsBody.appendChild(row);
-//   });
-// }
-
 // Set up event listeners
 function setupEventListeners() {
-  // Subject selection change
-  // materiaSelect.addEventListener("change", function () {
-  //   // In a real app, this would fetch students for the selected subject
-  //   console.log("Selected subject:", this.value);
-  // });
-
   // List button click - add attendance column
   btnListar.addEventListener("click", function () {
     toggleAttendanceColumn();

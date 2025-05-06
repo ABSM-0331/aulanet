@@ -1,0 +1,532 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+:root {
+  /* Ancho de la columna izquierda */
+}
+
+body {
+  background-color: #f9f9f9;
+  color: var(--text-color);
+  line-height: 1.6;
+  height: 100vh;
+  overflow: hidden;
+  /* Evitar scroll en el body */
+}
+
+.container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header styles */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: white;
+  z-index: 10;
+}
+
+.logo h1 {
+  color: var(--primary-color);
+  font-size: 1.6rem;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-name {
+  font-weight: 500;
+}
+
+/* Button styles */
+.btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.btn-secondary {
+  background-color: var(--medium-gray);
+  color: var(--text-color);
+}
+
+.btn-secondary:hover {
+  background-color: #d0d0d0;
+}
+
+.btn-logout {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+.btn-logout:hover {
+  background-color: #e0e0e0;
+}
+
+.btn-list {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.btn-list:hover {
+  background-color: var(--secondary-dark);
+}
+
+.btn-edit {
+  background-color: var(--warning-color);
+  color: white;
+}
+
+/* New Layout - Two column layout */
+.content-wrapper {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 60px);
+  /* Altura total menos el header */
+}
+
+/* Left sidebar - fixed, sin scroll */
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: white;
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  gap: 15px;
+  /* Quitado overflow-y: auto; para eliminar el scroll */
+}
+
+/* Right content area - scrollable */
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+}
+
+/* Course selector and Parcial selector */
+.course-selector,
+.parcial-selector {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.course-selector h2,
+.parcial-selector h3 {
+  margin-bottom: 10px;
+  color: var(--primary-color);
+  font-size: 1.1rem;
+}
+
+/* Make the content of both panels more compact */
+.select-container,
+.teacher-info,
+.formula-section,
+.parcial-controls,
+.parcial-table-container {
+  margin-bottom: 10px;
+}
+/* Push action buttons to the bottom */
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 10px;
+}
+
+.select-container select {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.teacher-info {
+  padding: 8px;
+  background-color: var(--light-gray);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.formula-section label {
+  display: block;
+  margin-bottom: 3px;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.formula-section input {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+.parcial-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.parcial-controls select {
+  padding: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.period-info {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.8rem;
+}
+
+/* Tables */
+.parcial-table-container {
+  display: flex;
+  flex-direction: column;
+  /* Quitar altura máxima y scroll para mostrar siempre las 3 filas */
+}
+
+.parcial-table,
+.students-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.parcial-table th,
+.parcial-table td,
+.students-table th,
+.students-table td {
+  padding: 7px 10px;
+  text-align: left;
+  border: 1px solid var(--border-color);
+  font-size: 0.9rem;
+}
+
+.parcial-table th,
+.students-table th {
+  background-color: var(--light-gray);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* Ajustar el ancho de las columnas de la tabla de alumnos */
+.students-table th:nth-child(1),
+.students-table td:nth-child(1) {
+  width: 70px;
+  /* Ancho para "No. Lista" */
+  white-space: nowrap;
+}
+
+.students-table th:nth-child(2),
+.students-table td:nth-child(2) {
+  width: 100px;
+  /* Ancho para "No. Control" */
+  white-space: nowrap;
+}
+
+.parcial-table tr:nth-child(even),
+.students-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Students section - now takes full right side */
+.students-section {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.students-section h3 {
+  margin-bottom: 12px;
+  color: var(--primary-color);
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.table-container {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  overflow: auto;
+}
+
+.modal-content {
+  background-color: white;
+  margin: 50px auto;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 800px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  animation: modalFadeIn 0.3s;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h2 {
+  color: var(--primary-color);
+}
+
+.close-modal {
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #888;
+}
+
+.close-modal:hover {
+  color: var(--danger-color);
+}
+
+/* Form styles */
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  flex: 1;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.criterios input {
+  background-color: var(--light-gray);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* Attendance column styles */
+.attendance-cell {
+  display: flex;
+  gap: 5px;
+}
+
+.attendance-option {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+.option-0 {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.option-1 {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.option-2 {
+  background-color: var(--warning-color);
+  color: white;
+}
+
+.option-3 {
+  background-color: var(--light-gray);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
+
+.selected {
+  box-shadow: 0 0 0 2px black;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .content-wrapper {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 50vh;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .main-content {
+    height: 50vh;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .parcial-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .modal-content {
+    width: 95%;
+    margin: 20px auto;
+  }
+}
+
+/* combo box */
+.combo-box {
+  margin-bottom: 15px;
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  font-family: Arial, sans-serif;
+}
+
+/* Botón para desplegar */
+.combo-box-button {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  cursor: pointer;
+  text-align: left;
+}
+
+/* Icono de flecha */
+.combo-box-button::after {
+  content: url(assets/flecha.svg);
+  float: right;
+}
+
+.combo-box-options {
+  position: absolute;
+  width: 100%;
+  max-height: 200px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  overflow-y: auto;
+  display: none; /* Oculto por defecto */
+  z-index: 100;
+}
+
+/* Encabezados de la tabla */
+.custom-header {
+  font-weight: bold;
+  background-color: #007bff;
+  color: white;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5 columnas iguales */
+}
+
+/* Opciones (filas) */
+.custom-option {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5 columnas iguales */
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+}
+
+/* Resaltar fila al pasar el cursor */
+.custom-option:hover {
+  background-color: #f0f0f0;
+}
