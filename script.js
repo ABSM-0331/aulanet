@@ -10,7 +10,72 @@ const closeModal = document.querySelector(".close-modal");
 const btnCancelar = document.getElementById("btn-cancelar");
 const formParcial = document.getElementById("form-parcial");
 const btnEditCriterios = document.getElementById("btn-edit-criterios");
+const btnGestionarTareas = document.getElementById("btn-actividades"); // Nuevo botón para gestionar tareas
+const modalGestionarTareas = document.getElementById("modalGestionarTareas"); // Modal de tareas
 
+function loadTasksData() {
+  const tasks = [
+    {
+      id: 1,
+      title: "Tarea 1",
+      description: "Descripción de la tarea 1",
+      status: "Pendiente",
+    },
+    {
+      id: 2,
+      title: "Tarea 2",
+      description: "Descripción de la tarea 2",
+      status: "En progreso",
+    },
+    {
+      id: 3,
+      title: "Tarea 3",
+      description: "Descripción de la tarea 3",
+      status: "Completada",
+    },
+  ];
+
+  const taskListContainer = document.getElementById("task-list");
+  taskListContainer.innerHTML = ""; // Limpiar la lista antes de agregar nuevas tareas
+
+  tasks.forEach((task) => {
+    const taskItem = document.createElement("div");
+    taskItem.classList.add("task-item");
+
+    const taskTitle = document.createElement("h4");
+    taskTitle.textContent = task.title;
+
+    const taskDescription = document.createElement("p");
+    taskDescription.textContent = task.description;
+
+    const taskStatus = document.createElement("span");
+    taskStatus.textContent = task.status;
+    taskStatus.classList.add(
+      "status",
+      task.status.toLowerCase().replace(" ", "-")
+    );
+
+    // Botón para editar tarea
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "Editar";
+    editBtn.onclick = () => openEditTaskForm(task);
+
+    taskItem.appendChild(taskTitle);
+    taskItem.appendChild(taskDescription);
+    taskItem.appendChild(taskStatus);
+    taskItem.appendChild(editBtn);
+
+    taskListContainer.appendChild(taskItem);
+  });
+}
+
+function closeModalTareasFunction() {
+  modalGestionarTareas.style.display = "none";
+}
+function abrirModal() {
+  modalGestionarTareas.style.display = "block";
+  loadTasksData(); // Cargar datos de tareas al abrir el modal
+}
 // Flag to track if attendance column is visible
 let attendanceColumnVisible = false;
 
@@ -70,37 +135,14 @@ function toggleAttendanceColumn() {
     rows.forEach((row) => {
       const attendanceCell = document.createElement("td");
       attendanceCell.classList.add("attendance-cell");
-
-      // Create attendance options (0=absent, 1=present, 2=late, 3=excused)
-      const options = [
-        { value: 0, label: "0", class: "option-0", title: "Falta" },
-        { value: 1, label: "1", class: "option-1", title: "Asistencia" },
-        { value: 2, label: "2", class: "option-2", title: "Retardo" },
-        { value: 3, label: "3", class: "option-3", title: "Justificado" },
-      ];
-
-      options.forEach((option) => {
-        const optionElement = document.createElement("span");
-        optionElement.textContent = option.label;
-        optionElement.classList.add("attendance-option", option.class);
-        optionElement.title = option.title;
-        optionElement.dataset.value = option.value;
-
-        optionElement.addEventListener("click", function () {
-          // Remove selected class from all options in this cell
-          attendanceCell
-            .querySelectorAll(".attendance-option")
-            .forEach((opt) => {
-              opt.classList.remove("selected");
-            });
-
-          // Add selected class to clicked option
-          this.classList.add("selected");
-        });
-
-        attendanceCell.appendChild(optionElement);
+      const input = document.createElement("input");
+      input.type = "text";
+      input.classList.add("input-list");
+      input.setAttribute("onblur", "predeterminado(this)");
+      input.addEventListener("click", function () {
+        this.select();
       });
-
+      attendanceCell.appendChild(input);
       row.appendChild(attendanceCell);
     });
 
@@ -126,7 +168,11 @@ function toggleAttendanceColumn() {
     btnListar.innerHTML = '<i class="icon-list"></i> Listar';
   }
 }
-
+function predeterminado(input) {
+  if (input.value.trim() === "") {
+    input.value = "1";
+  }
+}
 // Open modal
 function openModal() {
   modalParcial.style.display = "block";

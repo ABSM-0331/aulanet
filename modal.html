@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Input con Valor Predeterminado</title>
+</head>
+
+<body>
+
+    <input type="text" id="miInput" placeholder="Ingresa texto..." onfocus="limpiarValor(this)"
+        onblur="agregarValorPredeterminado(this)">
+
+    <script>
+        function limpiarValor(input) {
+            // Limpia el valor solo si es el predeterminado
+            if (input.value === "Valor predeterminado") {
+                input.value = "";
+            }
+        }
+
+        function agregarValorPredeterminado(input) {
+            // Si está vacío al perder el focus, agrega el valor predeterminado
+            if (input.value.trim() === "") {
+                input.value = "Valor predeterminado";
+            }
+        }
+    </script>
+
+</body>
+
+</html>

@@ -236,6 +236,7 @@ body {
 .parcial-table td,
 .students-table th,
 .students-table td {
+  top: 0;
   padding: 7px 10px;
   text-align: left;
   border: 1px solid var(--border-color);
@@ -244,6 +245,7 @@ body {
 
 .parcial-table th,
 .students-table th {
+  top: 0;
   background-color: var(--light-gray);
   font-weight: 600;
   position: sticky;
@@ -530,3 +532,5 @@ body {
 .custom-option:hover {
   background-color: #f0f0f0;
 }
+
+

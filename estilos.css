@@ -402,49 +402,6 @@ body {
   margin-top: 20px;
 }
 
-/* Attendance column styles */
-.attendance-cell {
-  display: flex;
-  gap: 5px;
-}
-
-.attendance-option {
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 0.8rem;
-}
-
-.option-0 {
-  background-color: var(--danger-color);
-  color: white;
-}
-
-.option-1 {
-  background-color: var(--success-color);
-  color: white;
-}
-
-.option-2 {
-  background-color: var(--warning-color);
-  color: white;
-}
-
-.option-3 {
-  background-color: var(--light-gray);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-}
-
-.selected {
-  box-shadow: 0 0 0 2px black;
-}
-
 /* Responsive styles */
 @media (max-width: 992px) {
   .content-wrapper {
@@ -479,6 +436,15 @@ body {
     width: 95%;
     margin: 20px auto;
   }
+}
+.attendance-cell {
+  padding: 0;
+}
+.input-list {
+  height: 100%;
+  width: 100%;
+  box-sizing: content-box;
+  border: none;
 }
 
 /* combo box */
@@ -541,4 +507,282 @@ body {
 /* Resaltar fila al pasar el cursor */
 .custom-option:hover {
   background-color: #f0f0f0;
+}
+/* Modal Base Styles */
+.modalTareas {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  overflow: auto;
+}
+
+.modalTareas-content {
+  background-color: white;
+  margin: 50px auto;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 600px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  animation: modalFadeIn 0.3s;
+  max-height: 600px;
+}
+
+/* Close Button */
+.close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.close:hover {
+  color: #4b5563;
+}
+
+/* Modal Header */
+.modalTareas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0;
+  margin-bottom: 24px;
+  color: #1f2937;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 16px;
+}
+
+/* Form Elements */
+.modalTareas-content div {
+  margin-bottom: 16px;
+}
+
+.modalTareas-content label {
+  display: block;
+  margin-bottom: 8px;
+  color: #4b5563;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.modalTareas-content input,
+.modalTareas-content select,
+.modalTareas-content textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #1f2937;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background-color: white;
+}
+
+.modalTareas-content textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.modalTareas-content input:focus,
+.modalTareas-content select:focus,
+.modalTareas-content textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Buttons */
+.modalTareas-content button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+.modalTareas-content button:active {
+  transform: translateY(1px);
+}
+
+#save-task-btn {
+  background-color: #3b82f6;
+  color: white;
+}
+
+#save-task-btn:hover {
+  background-color: #2563eb;
+}
+
+#edit-task-btn {
+  background-color: #10b981;
+  color: white;
+}
+
+#edit-task-btn:hover {
+  background-color: #059669;
+}
+
+#add-task-btn {
+  background-color: #6366f1;
+  color: white;
+}
+
+#add-task-btn:hover {
+  background-color: #4f46e5;
+}
+
+/* Task List */
+#task-list {
+  margin-top: 24px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 16px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.task-item {
+  padding: 10px;
+  border-radius: 6px;
+  background-color: #f9fafb;
+  margin-bottom: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-left: 4px solid #3b82f6;
+}
+
+.task-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.task-item h3 {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  color: #1f2937;
+}
+
+.task-item p {
+  margin: 0 0 8px 0;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.task-status {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.status-Pendiente {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-EnProgreso {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-Completada {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.task-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.task-actions button {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+.btn-edit {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #d97706;
+}
+
+.btn-delete {
+  background-color: #ef4444;
+  color: white;
+}
+
+.btn-delete:hover {
+  background-color: #dc2626;
+}
+
+/* Animation for task items */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.task-item {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* Scrollbar styling */
+#task-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+#task-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+#task-list::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+#task-list::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 640px) {
+  .modalTareas-content {
+    padding: 16px;
+    width: 95%;
+  }
+
+  .modalTareas-content h2 {
+    font-size: 1.25rem;
+  }
+
+  .task-actions {
+    flex-direction: column;
+  }
+
+  .task-actions button {
+    width: 100%;
+  }
 }
