@@ -29,7 +29,19 @@ body {
   overflow: hidden;
   /* Evitar scroll en el body */
 }
-
+#form-tareas {
+  display: none;
+}
+#form-tareas.visible {
+  display: block;
+}
+.students-table td.attendance-cell {
+  padding: 0;
+}
+.students-table th.attendance-header {
+  width: 40px;
+  text-align: center;
+}
 .container {
   height: 100vh;
   display: flex;
@@ -249,6 +261,7 @@ body {
 .students-table th,
 .students-table td {
   padding: 7px 10px;
+  height: 40px;
   text-align: left;
   border: 1px solid var(--border-color);
   font-size: 0.9rem;
@@ -437,12 +450,18 @@ body {
     margin: 20px auto;
   }
 }
-.attendance-cell {
-  padding: 0;
+
+.input-list::-webkit-outer-spin-button,
+.input-list::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 .input-list {
+  text-align: center;
+  background-color: transparent;
   height: 100%;
   width: 100%;
+  display: block;
   box-sizing: content-box;
   border: none;
 }
@@ -510,6 +529,7 @@ body {
 }
 /* Modal Base Styles */
 .modalTareas {
+  overflow: hidden;
   display: none;
   position: fixed;
   top: 0;

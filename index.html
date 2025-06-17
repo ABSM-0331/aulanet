@@ -233,24 +233,26 @@
                 <span>10/40</span>
             </div>
             <!-- Formulario para agregar o editar tareas -->
-            <!-- <div>
-                <label for="task-title">Título de la tarea:</label>
-                <input type="text" id="task-title" placeholder="Ingresa el título de la tarea" required>
+            <div class="form-tareas" id="form-tareas">
+                <div>
+                    <label for="task-title">Título de la tarea:</label>
+                    <input type="text" id="task-title" placeholder="Ingresa el título de la tarea" required>
+                </div>
+
+                <div>
+                    <label for="task-description">Descripción:</label>
+                    <textarea id="task-description" placeholder="Descripción de la tarea" required></textarea>
+                </div>
+
             </div>
 
-            <div>
-                <label for="task-description">Descripción:</label>
-                <textarea id="task-description" placeholder="Descripción de la tarea" required></textarea>
-            </div> -->
-
             <!-- Botones de acción -->
-            <button id="save-task-btn" onclick="">Guardar tarea</button>
+            <button id="save-task-btn" onclick="mostrarFormulario()">Agregar tarea</button>
 
             <!-- Lista de tareas -->
             <div id="task-list"></div>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 

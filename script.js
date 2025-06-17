@@ -12,6 +12,7 @@ const formParcial = document.getElementById("form-parcial");
 const btnEditCriterios = document.getElementById("btn-edit-criterios");
 const btnGestionarTareas = document.getElementById("btn-actividades"); // Nuevo botón para gestionar tareas
 const modalGestionarTareas = document.getElementById("modalGestionarTareas"); // Modal de tareas
+const formTareas = document.getElementById("form-tareas"); // Formulario de tareas
 
 function loadTasksData() {
   const tasks = [
@@ -91,6 +92,14 @@ function setupEventListeners() {
   // List button click - add attendance column
   btnListar.addEventListener("click", function () {
     toggleAttendanceColumn();
+    const filas = studentsBody.querySelectorAll("#students-table tbody tr");
+    filas.forEach((fila) => {
+      const ultimaCelda = fila.cells[fila.cells.length];
+      const valor = ultimaCelda.textContent.trim();
+
+      console.log(valor);
+    });
+    // ultimacelda();
   });
 
   // Open modal for new partial
@@ -136,7 +145,7 @@ function toggleAttendanceColumn() {
       const attendanceCell = document.createElement("td");
       attendanceCell.classList.add("attendance-cell");
       const input = document.createElement("input");
-      input.type = "text";
+      input.type = "number";
       input.classList.add("input-list");
       input.setAttribute("onblur", "predeterminado(this)");
       input.addEventListener("click", function () {
@@ -165,8 +174,11 @@ function toggleAttendanceColumn() {
     });
 
     attendanceColumnVisible = false;
-    btnListar.innerHTML = '<i class="icon-list"></i> Listar';
+    btnListar.textContent = "Listar";
   }
+}
+function mostrarFormulario() {
+  formTareas.classList.toggle("visible");
 }
 function predeterminado(input) {
   if (input.value.trim() === "") {
