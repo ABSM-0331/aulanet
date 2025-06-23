@@ -30,7 +30,6 @@
                         <!-- Botón para desplegar el combo -->
                         <div class="combo-box-button" id="comboBoxButton">
                             Seleccione una materia
-
                         </div>
 
                         <!-- Contenedor de las opciones -->
@@ -123,6 +122,27 @@
             <div class="main-content">
                 <div class="students-section">
                     <h3>Listado de Alumnos</h3>
+
+                    <!-- Botón para guardar lista - SIEMPRE VISIBLE -->
+                    <div id="save-attendance-container"
+                        style="margin-bottom: 15px; text-align: center; background-color: #f0f8ff; padding: 15px; border-radius: 8px; border: 2px solid #007bff;">
+                        <button id="btn-guardar-lista" class="btn btn-primary"
+                            style="background-color: #28a745; border-color: #28a745; padding: 12px 25px; font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer;">
+                            💾 Guardar Lista de Asistencia
+                        </button>
+                        <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                            <strong>Códigos de Asistencia:</strong>
+                            <span style="color: #dc3545; font-weight: bold;">0=Falta</span>,
+                            <span style="color: #28a745; font-weight: bold;">1=Asistencia</span>,
+                            <span style="color: #ffc107; font-weight: bold;">2=Retraso</span>,
+                            <span style="color: #17a2b8; font-weight: bold;">3=Justificación</span>
+                        </div>
+                        <div id="attendance-status"
+                            style="margin-top: 8px; font-size: 0.85em; color: #666; font-style: italic;">
+                            Seleccione una materia y haga clic en "Listar" para habilitar el guardado
+                        </div>
+                    </div>
+
                     <div class="table-container">
                         <table id="students-table" class="students-table">
                             <thead>
@@ -224,6 +244,7 @@
             </form>
         </div>
     </div>
+
     <!-- Modal para gestionar tareas -->
     <div id="modalGestionarTareas" class="modalTareas">
         <div class="modalTareas-content">

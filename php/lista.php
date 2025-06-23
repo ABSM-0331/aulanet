@@ -13,9 +13,8 @@ function guardar_lista()
         $codigo_alumno = $_POST['codigo_alumno'] ?? null;
         $codigo_lista = $_POST['codigo_lista'] ?? null;
         $parcial = $_POST['parcial'] ?? null;
-
         // Validar que se hayan recibido todos los datos necesarios
-        if (!$asignatura || !$codigo_alumno || $codigo_lista === null || !$parcial) {
+        if ($asignatura === null || $codigo_alumno === null || $codigo_lista === null || $parcial === null) {
             echo json_encode(["error" => "Faltan datos requeridos."]);
             return;
         }

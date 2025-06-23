@@ -13,6 +13,7 @@ const btnEditCriterios = document.getElementById("btn-edit-criterios");
 const btnGestionarTareas = document.getElementById("btn-actividades"); // Nuevo botón para gestionar tareas
 const modalGestionarTareas = document.getElementById("modalGestionarTareas"); // Modal de tareas
 const formTareas = document.getElementById("form-tareas"); // Formulario de tareas
+const btnGuardarLista = document.getElementById("btn-guardar-lista");
 
 function loadTasksData() {
   const tasks = [
@@ -87,19 +88,60 @@ function init() {
   setupFormValidation();
 }
 
+function savelists() {
+  //
+  console.log("Botón Guardar Lista clickeado");
+  const filas = studentsBody.querySelectorAll("#students-table tbody tr");
+  // const filas = studentsBody.querySelectorAll(".input-list");
+  let llenas = true;
+  const matriculas = [];
+  const datos = [];
+  let id = 0;
+  filas.forEach((fila) => {
+    const valor = fila.querySelector(".input-list").value;
+    if (!valor) {
+      llenas = false;
+      return;
+    }
+    matriculas.push(fila.cells[1].textContent.trim());
+    datos.push(valor);
+  });
+  if (llenas) {
+    datos.forEach((dato, index) => {
+      const parcial = 2;
+      fetch("php/lista.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          asignatura: "Matemáticas",
+          codigo_alumno: matriculas[index],
+          codigo_lista: dato,
+          parcial: parcial,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Respuesta del servidor:", data);
+        })
+        .catch((error) => {
+          console.error("Error al hacer la solicitud:", error);
+        });
+    });
+  } else {
+    alert("Algunas celdas están vacías.");
+  }
+}
+
 // Set up event listeners
 function setupEventListeners() {
+  btnGuardarLista.addEventListener("click", function () {
+    savelists();
+  });
   // List button click - add attendance column
   btnListar.addEventListener("click", function () {
     toggleAttendanceColumn();
-    const filas = studentsBody.querySelectorAll("#students-table tbody tr");
-    filas.forEach((fila) => {
-      const ultimaCelda = fila.cells[fila.cells.length];
-      const valor = ultimaCelda.textContent.trim();
-
-      console.log(valor);
-    });
-    // ultimacelda();
   });
 
   // Open modal for new partial
