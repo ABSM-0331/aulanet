@@ -84,19 +84,88 @@ let attendanceColumnVisible = false;
 // Initialize the page
 function init() {
   // populateStudentsTable();
+  // cargarlista();
   setupEventListeners();
   setupFormValidation();
+  iniciarMaterias();
+}
+
+async function cargarlista() {
+  alert("Cargando lista de estudiantes...");
+  const res = await fetch(
+    `php/obtener_listas.php?asignatura=${encodeURIComponent(
+      "Matematicas"
+    )}&parcial=${encodeURIComponent(2)}`
+  );
+
+  alert("Lista de estudiantes cargada correctamente");
+  const registros = await res.json();
+
+  console.log(registros);
+  if (!Array.isArray(registros)) {
+    alert("Error al obtener los datos");
+    return;
+  }
+
+  // Obtener todas las fechas únicas
+  const fechasUnicas = [...new Set(registros.map((r) => r.fecha))];
+
+  // Agregar cabeceras con las fechas
+  const thead = studentsTable.querySelector("thead tr");
+  fechasUnicas.forEach((fecha) => {
+    const th = document.createElement("th");
+    th.textContent = fecha;
+    thead.appendChild(th);
+  });
+
+  // Recorrer filas y agregar datos
+  studentsBody.querySelectorAll("tr").forEach((fila) => {
+    const codigo = fila.cells[1].textContent.trim(); // Segunda celda = código alumno
+
+    fechasUnicas.forEach((fecha) => {
+      const celda = document.createElement("td");
+      const entrada = registros.find(
+        (r) => r.codigo_alumno === codigo && r.fecha === fecha
+      );
+
+      if (entrada) {
+        const valor = entrada.codigo_lista;
+        console.log(valor);
+        // let texto = "";
+        // switch (valor) {
+        //   case 0:
+        //     texto = "F";
+        //     break;
+        //   case 1:
+        //     texto = "A";
+        //     break;
+        //   case 2:
+        //     texto = "R";
+        //     break;
+        //   case 3:
+        //     texto = "J";
+        //     break;
+        //   default:
+        //     texto = "-";
+        // }
+        celda.textContent = valor;
+      } else {
+        celda.textContent = "-"; // Sin registro
+      }
+
+      fila.appendChild(celda);
+    });
+  });
 }
 
 function savelists() {
-  //
   console.log("Botón Guardar Lista clickeado");
-  const filas = studentsBody.querySelectorAll("#students-table tbody tr");
+  const filas = studentsBody.querySelectorAll("tr");
   // const filas = studentsBody.querySelectorAll(".input-list");
   let llenas = true;
   const matriculas = [];
   const datos = [];
-  let id = 0;
+
   filas.forEach((fila) => {
     const valor = fila.querySelector(".input-list").value;
     if (!valor) {
@@ -326,18 +395,19 @@ function formatDate(date) {
 // Initialize the page when DOM is loaded
 document.addEventListener("DOMContentLoaded", init);
 
-fetch("php/materias.php")
-  .then((response) => {
-    if (!response.ok) {
-      throw new Error("Error al obtener los datos");
-    }
-    return response.json();
-  })
-  .then((materias) => {
-    generarMaterias(materias);
-  })
-  .catch((error) => console.error("Error:", error));
-
+function iniciarMaterias() {
+  fetch("php/materias.php")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Error al obtener los datos");
+      }
+      return response.json();
+    })
+    .then((materias) => {
+      generarMaterias(materias);
+    })
+    .catch((error) => console.error("Error:", error));
+}
 function generarMaterias(options) {
   const container = document.getElementById("comboBoxOptions");
   container.style.display = "none";
@@ -368,7 +438,7 @@ function generarMaterias(options) {
       const url = `php/ejemplo.php?materia=${encodeURIComponent(
         materiaSeleccionada
       )}&grupo=${encodeURIComponent(grupo)}`;
-      console.log(url);
+      // console.log(url);
       // Realiza la solicitud GET con Fetch
       fetch(url)
         .then((response) => {
@@ -379,11 +449,12 @@ function generarMaterias(options) {
         })
         .then((data) => {
           // Muestra la respuesta en el div con ID "datos"
-          document.getElementById("datos").innerHTML = data;
+          studentsBody.innerHTML = data;
         })
         .catch((error) => {
           console.error("Hubo un problema con la solicitud Fetch:", error);
         });
+      cargarlista();
     });
 
     container.appendChild(customOption);
