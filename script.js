@@ -438,7 +438,7 @@ function generarMaterias(options) {
       const url = `php/ejemplo.php?materia=${encodeURIComponent(
         materiaSeleccionada
       )}&grupo=${encodeURIComponent(grupo)}`;
-      // console.log(url);
+      console.log(url);
       // Realiza la solicitud GET con Fetch
       fetch(url)
         .then((response) => {
