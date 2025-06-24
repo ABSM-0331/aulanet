@@ -207,6 +207,12 @@ function savelists() {
 function setupEventListeners() {
   btnGuardarLista.addEventListener("click", function () {
     savelists();
+    Swal.fire({
+      title: "¡Pase de lista exitoso!",
+      text: "La lista se guardó correctamente.",
+      icon: "success",
+      confirmButtonText: "Aceptar",
+    });
   });
   // List button click - add attendance column
   btnListar.addEventListener("click", function () {

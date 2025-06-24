@@ -26,7 +26,7 @@ class DBC
 					self::$dbcInfo = parse_ini_file(self::$iniFile);
 				}
 				self::$instance = new PDO(
-					'mysql:host=' . self::$dbcInfo['host'] . ';dbname=' . self::$dbcInfo['db'],
+					'mysql:host=' . self::$dbcInfo['host'] . ';port=3306;dbname=' . self::$dbcInfo['db'],
 					self::$dbcInfo['user'],
 					self::$dbcInfo['password'],
 					array(
