@@ -127,7 +127,6 @@ async function cargarlista() {
       const entrada = registros.find(
         (r) => r.codigo_alumno === codigo && r.fecha === fecha
       );
-
       if (entrada) {
         const valor = entrada.codigo_lista;
         console.log(valor);
