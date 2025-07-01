@@ -114,8 +114,10 @@ async function cargarlista() {
   const thead = studentsTable.querySelector("thead tr");
   fechasUnicas.forEach((fecha) => {
     const th = document.createElement("th");
-    th.textContent = fecha;
-    thead.appendChild(th);
+   const [anio, mes, dia] = fecha.split("-");
+  th.innerHTML = `${anio}<br>${mes}<br>${dia}`;
+
+  thead.appendChild(th);
   });
 
   // Recorrer filas y agregar datos
