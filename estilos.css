@@ -261,16 +261,17 @@ body {
 .students-table th,
 .students-table td {
   padding: 7px 10px;
-  height: 40px;
+  height: 35px;
   text-align: left;
   border: 1px solid var(--border-color);
-  font-size: 0.9rem;
+  font-size: 0.7rem;
 }
 
 .parcial-table th,
 .students-table th {
   background-color: var(--light-gray);
   font-weight: 600;
+  height: 85px;
   position: sticky;
   top: 0;
   z-index: 1;
@@ -750,6 +751,23 @@ body {
 
 .btn-delete:hover {
   background-color: #dc2626;
+}
+.centro-tabla {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.fecha-rotada {
+  text-align: center;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  transform-origin: center center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  white-space: nowrap;
+  font-size: 0.8em;
 }
 
 /* Animation for task items */

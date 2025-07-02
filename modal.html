@@ -1,30 +1,129 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 
 <head>
-    <title>Input con Valor Predeterminado</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla con Encabezado Rotado y Ancho Mínimo Extremo</title>
+    <style>
+        /* Estilos básicos para la tabla */
+        table {
+            /* O un valor fijo si prefieres un ancho total fijo */
+            border-collapse: collapse;
+            margin: 50px auto;
+            font-family: Arial, sans-serif;
+            table-layout: fixed;
+            /* Crucial para controlar el ancho de las columnas */
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 0;
+            /* Reducimos el padding de celdas para ahorrar espacio */
+            text-align: center;
+            vertical-align: middle;
+
+            /* Ajusta estos valores para controlar el ancho de la columna */
+            width: 30px;
+            /* Reducido aún más. Experimenta con 20px, 25px, etc. */
+            min-width: 30px;
+            /* Mantiene el ancho mínimo */
+            max-width: 30px;
+            /* Asegura que no se expanda más allá de esto */
+            box-sizing: border-box;
+            /* Incluye padding y borde en el width */
+        }
+
+        /* Estilos específicos para la cabecera */
+        th {
+            background-color: #f2f2f2;
+            /* La altura del TH debe ser suficiente para el texto rotado. */
+            /* Es el 'ancho' del texto rotado el que se vuelve la 'altura' aquí. */
+            height: 120px;
+            /* Ajusta esta altura. Si el texto es muy largo, necesitarás más. */
+            position: relative;
+            overflow: hidden;
+            /* Recorta cualquier parte del texto que se salga */
+        }
+
+        /* Estilos para el texto rotado */
+        .rotated-text {
+            /* Centrado y rotación */
+            transform: translate(-50%, -50%) rotate(-90deg);
+            transform-origin: center center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+
+            white-space: nowrap;
+            /* Evita saltos de línea */
+
+            /* Opcional: ajustar el tamaño de fuente para que quepa mejor */
+            font-size: 0.8em;
+            /* Haz la fuente un poco más pequeña si es necesario */
+
+            /* Es posible que necesitemos forzar un ancho muy pequeño para el div,
+               aunque esto puede recortar el texto si no hay suficiente 'height' en el th. */
+            /* width: 1px; /* ¡¡Muy agresivo, puede recortar el texto!! Usar con cautela. */
+            /* Esto es más para ver el efecto que para una solución real */
+
+            /* padding-top: 5px; /* Pequeño padding interno si es necesario */
+            /* padding-bottom: 5px; */
+
+            /* border: 1px solid red; /* Para depuración */
+        }
+
+        /* Aseguramos que el contenido de los td también se centre bien */
+        td {
+            padding: 5px 0;
+            /* Padding vertical, sin padding horizontal para ahorrar espacio */
+        }
+    </style>
 </head>
 
 <body>
 
-    <input type="text" id="miInput" placeholder="Ingresa texto..." onfocus="limpiarValor(this)"
-        onblur="agregarValorPredeterminado(this)">
+    <h1>Ejemplo de Tabla con Encabezado Rotado y Ancho Mínimo Extremo</h1>
 
-    <script>
-        function limpiarValor(input) {
-            // Limpia el valor solo si es el predeterminado
-            if (input.value === "Valor predeterminado") {
-                input.value = "";
-            }
-        }
-
-        function agregarValorPredeterminado(input) {
-            // Si está vacío al perder el focus, agrega el valor predeterminado
-            if (input.value.trim() === "") {
-                input.value = "Valor predeterminado";
-            }
-        }
-    </script>
+    <table>
+        <thead>
+            <tr>
+                <th>
+                    <div class="rotated-text">Encabezado Muy Largo 1</div>
+                </th>
+                <th>
+                    <div class="rotated-text">Otro Encabezado Aquí</div>
+                </th>
+                <th>
+                    <div class="rotated-text">Y Uno Más Corto</div>
+                </th>
+                <th>
+                    <div class="rotated-text">Último Encabezado</div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+            </tr>
+        </tbody>
+    </table>
 
 </body>
 

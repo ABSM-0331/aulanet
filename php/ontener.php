@@ -20,7 +20,6 @@ function cargarListas()
 
         // Consulta SQL con condiciones
         $query = "SELECT codigo_lista,codigo_alumno,fecha
-
                   FROM control_listas 
                   WHERE asignatura = :asignatura 
                   AND parcial = :parcial";
@@ -43,4 +42,3 @@ function cargarListas()
 }
 
 cargarListas();
-?>

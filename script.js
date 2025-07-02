@@ -2,8 +2,7 @@
 const materiaSelect = document.getElementById("materia-select");
 const parcialSelect = document.getElementById("parcial-select");
 const btnListar = document.getElementById("btn-listar");
-const studentsTable = document.getElementById("students-table");
-const studentsBody = document.getElementById("datos");
+const tabla = document.getElementById("contenedor-tabla");
 const btnAperturar = document.getElementById("btn-aperturar");
 const modalParcial = document.getElementById("modal-parcial");
 const closeModal = document.querySelector(".close-modal");
@@ -14,6 +13,9 @@ const btnGestionarTareas = document.getElementById("btn-actividades"); // Nuevo 
 const modalGestionarTareas = document.getElementById("modalGestionarTareas"); // Modal de tareas
 const formTareas = document.getElementById("form-tareas"); // Formulario de tareas
 const btnGuardarLista = document.getElementById("btn-guardar-lista");
+let seleccion = null;
+// const studentsTable = document.getElementById("students-table");
+// const studentsBody = document.getElementById("datos");
 
 function loadTasksData() {
   const tasks = [
@@ -90,78 +92,10 @@ function init() {
   iniciarMaterias();
 }
 
-async function cargarlista() {
-  alert("Cargando lista de estudiantes...");
-  const res = await fetch(
-    `php/obtener_listas.php?asignatura=${encodeURIComponent(
-      "Matematicas"
-    )}&parcial=${encodeURIComponent(2)}`
-  );
-
-  alert("Lista de estudiantes cargada correctamente");
-  const registros = await res.json();
-
-  console.log(registros);
-  if (!Array.isArray(registros)) {
-    alert("Error al obtener los datos");
-    return;
-  }
-
-  // Obtener todas las fechas únicas
-  const fechasUnicas = [...new Set(registros.map((r) => r.fecha))];
-
-  // Agregar cabeceras con las fechas
-  const thead = studentsTable.querySelector("thead tr");
-  fechasUnicas.forEach((fecha) => {
-    const th = document.createElement("th");
-   const [anio, mes, dia] = fecha.split("-");
-  th.innerHTML = `${anio}<br>${mes}<br>${dia}`;
-
-  thead.appendChild(th);
-  });
-
-  // Recorrer filas y agregar datos
-  studentsBody.querySelectorAll("tr").forEach((fila) => {
-    const codigo = fila.cells[1].textContent.trim(); // Segunda celda = código alumno
-
-    fechasUnicas.forEach((fecha) => {
-      const celda = document.createElement("td");
-      const entrada = registros.find(
-        (r) => r.codigo_alumno === codigo && r.fecha === fecha
-      );
-      if (entrada) {
-        const valor = entrada.codigo_lista;
-        console.log(valor);
-        // let texto = "";
-        // switch (valor) {
-        //   case 0:
-        //     texto = "F";
-        //     break;
-        //   case 1:
-        //     texto = "A";
-        //     break;
-        //   case 2:
-        //     texto = "R";
-        //     break;
-        //   case 3:
-        //     texto = "J";
-        //     break;
-        //   default:
-        //     texto = "-";
-        // }
-        celda.textContent = valor;
-      } else {
-        celda.textContent = "-"; // Sin registro
-      }
-
-      fila.appendChild(celda);
-    });
-  });
-}
-
 function savelists() {
+  const body = document.getElementById("datos");
   console.log("Botón Guardar Lista clickeado");
-  const filas = studentsBody.querySelectorAll("tr");
+  const filas = body.querySelectorAll("tr");
   // const filas = studentsBody.querySelectorAll(".input-list");
   let llenas = true;
   const matriculas = [];
@@ -214,6 +148,7 @@ function setupEventListeners() {
       icon: "success",
       confirmButtonText: "Aceptar",
     });
+    listarAlumnos();
   });
   // List button click - add attendance column
   btnListar.addEventListener("click", function () {
@@ -251,14 +186,16 @@ function setupEventListeners() {
 function toggleAttendanceColumn() {
   if (!attendanceColumnVisible) {
     // Add header for attendance
-    const headerRow = studentsTable.querySelector("thead tr");
+    const tablaStudents = document.getElementById("students-table");
+    const cuerpotabla = document.getElementById("datos");
+    const headerRow = tablaStudents.querySelector("thead tr");
     const attendanceHeader = document.createElement("th");
     attendanceHeader.textContent = "Asistencia";
     attendanceHeader.classList.add("attendance-header");
     headerRow.appendChild(attendanceHeader);
 
     // Add attendance cells to each row
-    const rows = studentsBody.querySelectorAll("tr");
+    const rows = cuerpotabla.querySelectorAll("tr");
     rows.forEach((row) => {
       const attendanceCell = document.createElement("td");
       attendanceCell.classList.add("attendance-cell");
@@ -437,36 +374,108 @@ function generarMaterias(options) {
     `;
 
     customOption.addEventListener("click", function () {
-      const name = this.getAttribute("data-name");
-      comboBoxButton.textContent = name;
-      comboBoxOptions.style.display = "none";
-      materiaSeleccionada = this.getAttribute("data-value");
-      grupo = this.getAttribute("data-grupo");
-      const url = `php/ejemplo.php?materia=${encodeURIComponent(
-        materiaSeleccionada
-      )}&grupo=${encodeURIComponent(grupo)}`;
-      console.log(url);
-      // Realiza la solicitud GET con Fetch
-      fetch(url)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`Error en la solicitud: ${response.status}`);
-          }
-          return response.text(); // Devuelve la respuesta como texto
-        })
-        .then((data) => {
-          // Muestra la respuesta en el div con ID "datos"
-          studentsBody.innerHTML = data;
-        })
-        .catch((error) => {
-          console.error("Hubo un problema con la solicitud Fetch:", error);
-        });
-      cargarlista();
+      seleccion = this;
+      listarAlumnos();
     });
 
     container.appendChild(customOption);
   });
   container.style.display = "none";
+}
+function listarAlumnos() {
+  const name = seleccion.getAttribute("data-name");
+  console.log(name);
+  comboBoxButton.textContent = name;
+  comboBoxOptions.style.display = "none";
+  materiaSeleccionada = seleccion.getAttribute("data-value");
+  grupo = seleccion.getAttribute("data-grupo");
+  const url = `php/ejemplo.php?materia=${encodeURIComponent(
+    materiaSeleccionada
+  )}&grupo=${encodeURIComponent(grupo)}`;
+  console.log(url);
+  // Realiza la solicitud GET con Fetch
+  fetch(url)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Error en la solicitud: ${response.status}`);
+      }
+      return response.text(); // Devuelve la respuesta como texto
+    })
+    .then((data) => {
+      console.log("Datos recibidos:", data);
+      // Muestra la respuesta en el div con ID "datos"
+      tabla.innerHTML = data;
+      cargarlista();
+    })
+    .catch((error) => {
+      console.error("Hubo un problema con la solicitud Fetch:", error);
+    });
+}
+async function cargarlista() {
+  const studentsTable = document.getElementById("students-table");
+  const studentsBody = document.getElementById("datos");
+  alert("Cargando lista de estudiantes...");
+  const res = await fetch(
+    `php/obtener_listas.php?asignatura=${encodeURIComponent(
+      "Matematicas"
+    )}&parcial=${encodeURIComponent(2)}`
+  );
+
+  alert("Lista de estudiantes cargada correctamente");
+  const registros = await res.json();
+
+  console.log(registros);
+  if (!Array.isArray(registros)) {
+    alert("Error al obtener los datos");
+    return;
+  }
+
+  // Obtener todas las fechas únicas
+  const fechasUnicas = [...new Set(registros.map((r) => r.fecha))];
+
+  // Agregar cabeceras con las fechas
+  const thead = studentsTable.querySelector("thead tr");
+  console.log(thead);
+  fechasUnicas.forEach((fecha) => {
+    console.log(fecha);
+    const th = document.createElement("th");
+
+    const div = document.createElement("div");
+    const [dia, hora] = fecha.split(" ");
+    div.innerHTML = `${dia}<br>${hora}`;
+    // console.log(anio);
+    // console.log(mes);
+    // console.log(dia);
+    div.classList.add("fecha-rotada");
+
+    th.appendChild(div); // Agrega el div al th
+    // th.innerHTML = `${anio}/${mes}/${dia}`;
+
+    if (thead.appendChild(th)) {
+      console.log("Fecha agregada a la cabecera:", fecha);
+    }
+  });
+
+  // Recorrer filas y agregar datos
+  studentsBody.querySelectorAll("tr").forEach((fila) => {
+    const codigo = fila.cells[1].textContent.trim(); // Segunda celda = código alumno
+
+    fechasUnicas.forEach((fecha) => {
+      const celda = document.createElement("td");
+      const entrada = registros.find(
+        (r) => r.codigo_alumno === codigo && r.fecha === fecha
+      );
+      if (entrada) {
+        const valor = entrada.codigo_lista;
+        console.log(valor);
+        celda.textContent = valor;
+      } else {
+        celda.textContent = "-"; // Sin registro
+      }
+
+      fila.appendChild(celda);
+    });
+  });
 }
 
 // Mostrar/ocultar el comboBox

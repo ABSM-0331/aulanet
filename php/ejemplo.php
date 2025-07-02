@@ -32,7 +32,17 @@ try {
 
     // Verifica si hay registros
     if (count($resultados) > 0) {
-
+        echo "<table id='students-table' class='students-table'>
+                            <thead>
+                                <tr>
+                                    <th>No. Lista</th>
+                                    <th>No. Control</th>
+                                    <th>Nombre del Alumno</th>
+                                </tr>
+                            </thead>
+                            <tbody id='datos'>
+                                <!-- Student data will be populated by JavaScript -->
+                            ";
         foreach ($resultados as $alumno) {
             echo "<tr class='fila-alumno'>
             <td>" . $alumno['num_lista'] . "</td>
@@ -40,6 +50,7 @@ try {
             <td class='gray-cell'>" . $alumno['aluapp'] . " " . $alumno['aluapm'] . " " . $alumno['alunom'] . "</td>
             </tr>";
         }
+        echo "</tbody>";
     } else {
         echo "No se encontraron registros.";
     }

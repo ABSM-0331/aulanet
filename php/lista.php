@@ -20,7 +20,7 @@ function guardar_lista()
         }
 
         // Usar la fecha actual
-        $fecha_actual = date('Y-m-d');
+        $fecha_actual = Date('Y-m-d H:i:s');
 
         // Insertar en la base de datos
         $query = "INSERT INTO control_listas (fecha, asignatura, codigo_alumno, codigo_lista, parcial)
