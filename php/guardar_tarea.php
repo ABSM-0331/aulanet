@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once 'DBC.php'; // Asegúrate de que esta ruta esté correcta
 
 header('Content-Type: application/json');
@@ -8,9 +8,6 @@ try {
     $titulo = $_POST['titulo'] ?? null;
     $descripcion = $_POST['descripcion'] ?? null;
     $valor = $_POST['valor'] ?? null;
-
-    // 🪵 Log para depuración: guarda en archivo lo recibido
-    file_put_contents("debug_guardar.txt", json_encode($_POST, JSON_PRETTY_PRINT));
 
     // Validación más estricta
     if (!isset($titulo, $descripcion, $valor) || trim($titulo) === '' || trim($descripcion) === '' || trim($valor) === '') {

@@ -490,11 +490,15 @@ document.getElementById("save-task-btn").addEventListener("click", function () {
   const valor = document.getElementById("task-value").value.trim();
 
   if (!titulo || !descripcion || !valor) {
-    Swal.fire("Campos incompletos", "Por favor llena todos los campos.", "warning");
+    Swal.fire(
+      "Campos incompletos",
+      "Por favor llena todos los campos.",
+      "warning"
+    );
     return;
   }
 
-  fetch("guardar_tarea.php", {
+  fetch("php/guardar_tarea.php", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -509,7 +513,7 @@ document.getElementById("save-task-btn").addEventListener("click", function () {
     .then((data) => {
       if (data.status === "ok") {
         Swal.fire("Tarea guardada", data.message, "success");
-        document.getElementById("form-tareas").reset();
+        // document.getElementById("form-tareas").reset();
         document.getElementById("form-tareas").style.display = "none";
       } else {
         Swal.fire("Error", data.message, "error");
