@@ -13,31 +13,14 @@ const btnGestionarTareas = document.getElementById("btn-actividades"); // Nuevo 
 const modalGestionarTareas = document.getElementById("modalGestionarTareas"); // Modal de tareas
 const formTareas = document.getElementById("form-tareas"); // Formulario de tareas
 const btnGuardarLista = document.getElementById("btn-guardar-lista");
+const studentsTable = document.getElementById("students-table");
+const studentsBody = document.getElementById("datos");
 let seleccion = null;
 // const studentsTable = document.getElementById("students-table");
 // const studentsBody = document.getElementById("datos");
 
 function loadTasksData() {
-  const tasks = [
-    {
-      id: 1,
-      title: "Tarea 1",
-      description: "Descripción de la tarea 1",
-      status: "Pendiente",
-    },
-    {
-      id: 2,
-      title: "Tarea 2",
-      description: "Descripción de la tarea 2",
-      status: "En progreso",
-    },
-    {
-      id: 3,
-      title: "Tarea 3",
-      description: "Descripción de la tarea 3",
-      status: "Completada",
-    },
-  ];
+  const tasks = [];
 
   const taskListContainer = document.getElementById("task-list");
   taskListContainer.innerHTML = ""; // Limpiar la lista antes de agregar nuevas tareas
@@ -489,4 +472,51 @@ document.addEventListener("click", (event) => {
   if (!event.target.closest(".combo-box")) {
     comboBoxOptions.style.display = "none";
   }
+});
+// Mostrar/ocultar el formulario de tarea
+function mostrarFormulario() {
+  const formTareas = document.getElementById("form-tareas");
+  if (formTareas.style.display === "none" || formTareas.style.display === "") {
+    formTareas.style.display = "block";
+  } else {
+    formTareas.style.display = "none";
+  }
+}
+
+// Guardar tarea en la base de datos
+document.getElementById("save-task-btn").addEventListener("click", function () {
+  const titulo = document.getElementById("task-title").value.trim();
+  const descripcion = document.getElementById("task-description").value.trim();
+  const valor = document.getElementById("task-value").value.trim();
+
+  if (!titulo || !descripcion || !valor) {
+    Swal.fire("Campos incompletos", "Por favor llena todos los campos.", "warning");
+    return;
+  }
+
+  fetch("guardar_tarea.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({
+      titulo,
+      descripcion,
+      valor,
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "ok") {
+        Swal.fire("Tarea guardada", data.message, "success");
+        document.getElementById("form-tareas").reset();
+        document.getElementById("form-tareas").style.display = "none";
+      } else {
+        Swal.fire("Error", data.message, "error");
+      }
+    })
+    .catch((err) => {
+      Swal.fire("Error", "Hubo un problema al guardar la tarea.", "error");
+      console.error(err);
+    });
 });
