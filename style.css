@@ -532,3 +532,14 @@ body {
 .custom-option:hover {
   background-color: #f0f0f0;
 }
+
+.fecha-rotada {
+  writing-mode: horizontal-tb;
+  text-align: center;
+  white-space: normal; /* Permite saltos de línea */
+  font-size: 12px;
+  max-width: 50px;     /* Limita ancho máximo */
+  word-wrap: break-word; /* Rompe palabras largas */
+  margin: 0 auto;      /* Centra el contenido horizontalmente */
+}
+

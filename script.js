@@ -15,9 +15,64 @@ const formTareas = document.getElementById("form-tareas"); // Formulario de tare
 const btnGuardarLista = document.getElementById("btn-guardar-lista");
 // const studentsTable = document.getElementById("students-table");
 // const studentsBody = document.getElementById("datos");
+
+let modoTarea = "nuevo"; // Puede ser "nuevo" o "editar"
+let tareaEnEdicion = null; // Aquí guardaremos la tarea cuando se edita
 let seleccion = null;
 // const studentsTable = document.getElementById("students-table");
 // const studentsBody = document.getElementById("datos");
+
+
+function agregarColumnaTarea(nombreTarea, idtarea) {
+  const tablaStudents = document.getElementById("students-table");
+  if (!tablaStudents) return;
+
+  const thead = tablaStudents.querySelector("thead tr");
+  const tbody = tablaStudents.querySelector("tbody");
+  if (!thead || !tbody) return;
+
+  // Verificar si ya existe la columna con ese idtarea
+  const columnaExistente = thead.querySelector(`th[data-idtarea='${idtarea}']`);
+  if (columnaExistente) return; // Ya está agregada
+
+  // Crear el encabezado
+  const th = document.createElement("th");
+  th.setAttribute("data-idtarea", idtarea); // Asocia el idtarea al th
+
+  const div = document.createElement("div");
+
+  let parte1 = nombreTarea;
+  let parte2 = "";
+
+  if (nombreTarea.length > 10) {
+    const palabras = nombreTarea.split(" ");
+    const mitad = Math.ceil(palabras.length / 2);
+    parte1 = palabras.slice(0, mitad).join(" ");
+    parte2 = palabras.slice(mitad).join(" ");
+  }
+
+  div.innerHTML = parte2 ? `${parte1}<br>${parte2}` : `${parte1}`;
+  div.classList.add("fecha-rotada");
+
+  th.appendChild(div);
+  thead.appendChild(th);
+
+  // Agregar celdas en cada fila del tbody
+  tbody.querySelectorAll("tr").forEach((fila) => {
+    const td = document.createElement("td");
+    const input = document.createElement("input");
+    input.type = "number";
+    input.min = "0";
+    input.max = "100";
+    input.style.width = "60px";
+    input.classList.add("nota-tarea");
+    td.appendChild(input);
+    fila.appendChild(td);
+  });
+}
+
+
+
 
 function loadTasksData() {
   const taskListContainer = document.getElementById("task-list");
@@ -49,19 +104,34 @@ function loadTasksData() {
         }
 
         tareas.forEach((t) => {
-          const taskItem = document.createElement("div");
-          taskItem.classList.add("task-item");
-          taskItem.style.border = "1px solid #ccc";
-          taskItem.style.padding = "10px";
-          taskItem.style.marginBottom = "10px";
-          taskItem.style.borderRadius = "5px";
-          taskItem.style.backgroundColor = "#f9f9f9";
+  const taskItem = document.createElement("div");
+  taskItem.classList.add("task-item");
+  taskItem.style.border = "1px solid #ccc";
+  taskItem.style.padding = "10px";
+  taskItem.style.marginBottom = "10px";
+  taskItem.style.borderRadius = "5px";
+  taskItem.style.backgroundColor = "#f9f9f9";
 
-          taskItem.innerHTML = `
-            <h4 style="margin: 0 0 5px 0;">${t.titulo}</h4>
-            <p style="margin: 0 0 5px 0;">${t.descripcion}</p>
-            <span style="font-weight: bold;">Valor: ${t.valor}</span>
-          `;
+  taskItem.innerHTML = `
+    <h4 style="margin: 0 0 5px 0;">${t.titulo}</h4>
+    <p style="margin: 0 0 5px 0;">${t.descripcion}</p>
+    <span style="font-weight: bold;">Valor: ${t.valor}</span>
+    <br><br>
+    <button class="btn btn-warning btn-editar">Editar</button>
+    <button class="btn btn-danger btn-eliminar">Eliminar</button>
+  `;
+
+  // Botones de editar y eliminar
+  const btnEditar = taskItem.querySelector(".btn-editar");
+  const btnEliminar = taskItem.querySelector(".btn-eliminar");
+
+  btnEditar.addEventListener("click", () => {
+    editarTarea(t);
+  });
+
+  btnEliminar.addEventListener("click", () => {
+    eliminarTarea(t);
+  });
 
           taskListContainer.appendChild(taskItem);
         });
@@ -387,6 +457,31 @@ function generarMaterias(options) {
   });
   container.style.display = "none";
 }
+
+async function agregarTareasExistentes() {
+  if (!seleccion) return;
+
+  const materia = seleccion.getAttribute("data-value");
+  const grupo = seleccion.getAttribute("data-grupo");
+
+  try {
+    const res = await fetch(`php/obtener_tareas.php?materia=${encodeURIComponent(materia)}&grupo=${encodeURIComponent(grupo)}`);
+    const data = await res.json();
+
+    if (data.status === "ok") {
+      const tareas = data.tareas;
+
+      tareas.forEach((t) => {
+        agregarColumnaTarea(t.titulo, t.idtarea);
+      });
+    } else {
+      console.error("Error al obtener tareas:", data.message);
+    }
+  } catch (error) {
+    console.error("Error en agregarTareasExistentes:", error);
+  }
+}
+
 function listarAlumnos() {
   const name = seleccion.getAttribute("data-name");
   console.log(name);
@@ -411,6 +506,7 @@ function listarAlumnos() {
       // Muestra la respuesta en el div con ID "datos"
       tabla.innerHTML = data;
       cargarlista();
+      agregarTareasExistentes();
     })
     .catch((error) => {
       console.error("Hubo un problema con la solicitud Fetch:", error);
@@ -505,91 +601,125 @@ function mostrarFormulario() {
   }
 }
 
-// Guardar tarea en la base de datos
 document.getElementById("save-task-btn").addEventListener("click", function () {
   const titulo = document.getElementById("task-title").value.trim();
   const descripcion = document.getElementById("task-description").value.trim();
   const valor = document.getElementById("task-value").value.trim();
 
   if (!titulo || !descripcion || !valor) {
-    Swal.fire(
-      "Campos incompletos",
-      "Por favor llena todos los campos.",
-      "warning"
-    );
+    Swal.fire("Campos incompletos", "Por favor llena todos los campos.", "warning");
     return;
   }
 
   if (!seleccion) {
-    Swal.fire(
-      "Selecciona una materia",
-      "Debes seleccionar una materia antes de guardar la tarea.",
-      "warning"
-    );
+    Swal.fire("Selecciona una materia", "Debes seleccionar una materia antes de guardar la tarea.", "warning");
     return;
   }
 
+  if (modoTarea === "nuevo") {
+    guardarNuevaTarea(titulo, descripcion, valor);
+  } else if (modoTarea === "editar") {
+    modificarTareaExistente(titulo, descripcion, valor);
+  }
+});
+
+function guardarNuevaTarea(titulo, descripcion, valor) {
   const materia = seleccion.getAttribute("data-value");
-  const grupo = seleccion.getAttribute("data-grupo"); // ✅ obtenemos el grupo también
+  const grupo = seleccion.getAttribute("data-grupo");
 
   fetch("php/guardar_tarea.php", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      titulo,
-      descripcion,
-      valor,
-      materia,
-      grupo, // ✅ enviamos el grupo al backend
-    }),
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ titulo, descripcion, valor, materia, grupo }),
   })
-    .then((res) => res.json())
-    .then((data) => {
+    .then(res => res.json())
+    .then(data => {
       if (data.status === "ok") {
         Swal.fire("Tarea guardada", data.message, "success").then(() => {
-          // Ocultar formulario
-          document.getElementById("form-tareas").style.display = "none";
+          //agregarColumnaTarea(titulo, data.idtarea); // Usa el id real
+          ocultarFormularioTareas();
+          //loadTasksData();
+          listarAlumnos();
+        });
+      } else {
+        Swal.fire("Error", data.message, "error");
+      }
+    })
+    .catch(err => {
+      Swal.fire("Error", "Hubo un problema al guardar la tarea.", "error");
+      console.error(err);
+    });
+}
 
-          // Mostrar botón "Nueva tarea" y ocultar botón "volver"
-          document.getElementById("nueva-tarea-wrapper").style.display =
-            "block";
+function modificarTareaExistente(titulo, descripcion, valor) {
+  fetch("php/modificar_tarea.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      idtarea: tareaEnEdicion.idtarea,
+      titulo,
+      descripcion,
+      valor
+    }),
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "ok") {
+        Swal.fire("Tarea modificada", data.message, "success").then(() => {
 
-          document.getElementById("task-list").style.display = "block";
+          const thTarea = document.querySelector(`th[data-idtarea='${tareaEnEdicion.idtarea}']`);
+          if (thTarea) {
+            const div = thTarea.querySelector("div");
+            let parte1 = titulo;
+            let parte2 = "";
 
-          const volverBtn = document.getElementById("btn-volver-tareas");
-          if (volverBtn) volverBtn.style.display = "none";
+            if (titulo.length > 10) {
+              const palabras = titulo.split(" ");
+              const mitad = Math.ceil(palabras.length / 2);
+              parte1 = palabras.slice(0, mitad).join(" ");
+              parte2 = palabras.slice(mitad).join(" ");
+            }
 
-          // Limpiar formulario
-          document.getElementById("task-title").value = "";
-          document.getElementById("task-description").value = "";
-          document.getElementById("task-value").value = "";
+            div.innerHTML = parte2 ? `${parte1}<br>${parte2}` : `${parte1}`;
+          }
 
-          // Recargar tareas
+          ocultarFormularioTareas();
           loadTasksData();
         });
       } else {
         Swal.fire("Error", data.message, "error");
       }
     })
-    .catch((err) => {
-      Swal.fire("Error", "Hubo un problema al guardar la tarea.", "error");
+    .catch(err => {
+      Swal.fire("Error", "Hubo un problema al modificar la tarea.", "error");
       console.error(err);
     });
-});
-let tareaFormVisible = false;
+}
+
 
 function mostrarFormulario() {
   const formTareas = document.getElementById("form-tareas");
   const taskList = document.getElementById("task-list");
   const botonNueva = document.getElementById("nueva-tarea-wrapper");
 
-  if (!tareaFormVisible) {
+  //if (!tareaFormVisible) {
     // Mostrar formulario y ocultar lista de tareas
     formTareas.style.display = "block";
     taskList.style.display = "none";
     botonNueva.style.display = "none";
+
+     // Limpiar campos
+
+    document.getElementById("task-title").value = "";
+  document.getElementById("task-description").value = "";
+  document.getElementById("task-value").value = "";
+
+  // Establecer modo
+  modoTarea = "nuevo";
+  tareaEnEdicion = null;
+
+    // Cambiar texto del botón
+  document.getElementById("save-task-btn").textContent = "Guardar tarea";
 
     // Agregar flechita de regreso
     if (!document.getElementById("back-arrow")) {
@@ -605,7 +735,7 @@ function mostrarFormulario() {
     }
 
     tareaFormVisible = true;
-  }
+ // }
 }
 
 function confirmarSalirDelFormulario() {
@@ -662,4 +792,72 @@ function abrirModal() {
 
   tareaFormVisible = false;
   loadTasksData(); // Cargar las tareas
+
 }
+
+function editarTarea(tarea) {
+  // Mostrar formulario y ocultar lista
+ mostrarFormulario();
+
+  document.getElementById("task-title").value = tarea.titulo;
+  document.getElementById("task-description").value = tarea.descripcion;
+  document.getElementById("task-value").value = tarea.valor;
+
+  document.getElementById("save-task-btn").textContent = "Modificar tarea";
+
+  modoTarea = "editar";
+  tareaEnEdicion = tarea;
+}
+
+
+function eliminarTarea(tarea) {
+   console.log("Función eliminarTarea llamada", tarea);
+  Swal.fire({
+    title: "¿Estás seguro?",
+    text: "Esta acción eliminará la tarea.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Sí, eliminar",
+    cancelButtonText: "Cancelar",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      
+
+      fetch("php/eliminar_tarea.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          idtarea: tarea.idtarea,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === "ok") {
+            Swal.fire("Eliminada", data.message, "success").then(() => {
+
+               // Eliminar la columna de la tabla de alumnos en tiempo real
+    const thTarea = document.querySelector(`th[data-idtarea='${tarea.idtarea}']`);
+    if (thTarea) {
+        const index = Array.from(thTarea.parentNode.children).indexOf(thTarea);
+        thTarea.remove();
+
+        // Eliminar las celdas correspondientes en cada fila
+        const filas = document.querySelectorAll("#students-table tbody tr");
+        filas.forEach((fila) => {
+            fila.removeChild(fila.children[index]);
+        });
+    }
+              loadTasksData();
+            });
+          } else {
+            Swal.fire("Error", data.message, "error");
+          }
+        })
+        .catch((err) => {
+          Swal.fire("Error", "Hubo un problema al eliminar la tarea.", "error");
+          console.error(err);
+        });
+    }
+  });
+}
+

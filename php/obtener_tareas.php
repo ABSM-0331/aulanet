@@ -13,7 +13,7 @@ try {
     }
 
     $db = DBC::get();
-    $stmt = $db->prepare("SELECT titulo, descripcion, valor FROM tareas WHERE materia = :materia AND grupo = :grupo");
+    $stmt = $db->prepare("SELECT idtarea, titulo, descripcion, valor FROM tareas WHERE materia = :materia AND grupo = :grupo");
     $stmt->execute([
         ':materia' => $materia,
         ':grupo' => $grupo
