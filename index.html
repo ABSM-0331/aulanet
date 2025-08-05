@@ -239,46 +239,47 @@
     </div>
 
     <!-- Modal para gestionar tareas -->
-<div id="modalGestionarTareas" class="modalTareas">
-  <div class="modalTareas-content">
-    <span class="close" onclick="closeModalTareasFunction()">&times;</span>
-    <div class="modalTareas-header">
-      <h2>Gestionar Tareas</h2>
-      <span>10/40</span>
+    <div id="modalGestionarTareas" class="modalTareas">
+        <div class="modalTareas-content">
+            <div class="modalTareas-header">
+                <span class="close" onclick="closeModalTareasFunction()">&times;</span>
+                <h2>Gestionar Tareas</h2>
+                <span>10/40</span>
+            </div>
+
+            <!-- Botón para mostrar el formulario -->
+            <div id="nueva-tarea-wrapper" style="margin-top: 10px;">
+                <button id="btn-nueva-tarea" class="btn btn-secondary" onclick="mostrarFormulario()">+ Nueva
+                    tarea</button>
+            </div>
+
+
+            <!-- Formulario para agregar o editar tareas -->
+            <div class="form-tareas" id="form-tareas" style="display: none; margin-top: 15px;">
+                <div>
+                    <label for="task-title">Título de la tarea:</label>
+                    <input type="text" id="task-title" placeholder="Ingresa el título de la tarea" required>
+                </div>
+
+                <div>
+                    <label for="task-description">Descripción:</label>
+                    <textarea id="task-description" placeholder="Descripción de la tarea" required></textarea>
+                </div>
+
+                <!-- Campo para el valor de la tarea -->
+                <div>
+                    <label for="task-value">Valor de la tarea:</label>
+                    <input type="number" id="task-value" placeholder="Ej. 10" required min="0">
+                </div>
+
+                <!-- Botón para guardar tarea -->
+                <button id="save-task-btn" class="btn btn-primary">Guardar tarea</button>
+            </div>
+
+            <!-- Lista de tareas -->
+            <div id="task-list" style="margin-top: 20px;"></div>
+        </div>
     </div>
-
-    <!-- Botón para mostrar el formulario -->
-    <div id="nueva-tarea-wrapper" style="margin-top: 10px;">
-  <button id="btn-nueva-tarea" class="btn btn-secondary" onclick="mostrarFormulario()">+ Nueva tarea</button>
-    </div>
-
-
-    <!-- Formulario para agregar o editar tareas -->
-    <div class="form-tareas" id="form-tareas" style="display: none; margin-top: 15px;">
-      <div>
-        <label for="task-title">Título de la tarea:</label>
-        <input type="text" id="task-title" placeholder="Ingresa el título de la tarea" required>
-      </div>
-
-      <div>
-        <label for="task-description">Descripción:</label>
-        <textarea id="task-description" placeholder="Descripción de la tarea" required></textarea>
-      </div>
-
-      <!-- Campo para el valor de la tarea -->
-      <div>
-        <label for="task-value">Valor de la tarea:</label>
-        <input type="number" id="task-value" placeholder="Ej. 10" required min="0">
-      </div>
-
-      <!-- Botón para guardar tarea -->
-      <button id="save-task-btn" class="btn btn-primary">Guardar tarea</button>
-    </div>
-
-    <!-- Lista de tareas -->
-    <div id="task-list" style="margin-top: 20px;"></div>
-  </div>
-</div>
     <script src="script.js"></script>
 </body>
 

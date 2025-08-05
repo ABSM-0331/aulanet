@@ -13,15 +13,14 @@ const btnGestionarTareas = document.getElementById("btn-actividades"); // Nuevo 
 const modalGestionarTareas = document.getElementById("modalGestionarTareas"); // Modal de tareas
 const formTareas = document.getElementById("form-tareas"); // Formulario de tareas
 const btnGuardarLista = document.getElementById("btn-guardar-lista");
+// const body = document.getElementById("datos");
 // const studentsTable = document.getElementById("students-table");
-// const studentsBody = document.getElementById("datos");
 
 let modoTarea = "nuevo"; // Puede ser "nuevo" o "editar"
 let tareaEnEdicion = null; // Aquí guardaremos la tarea cuando se edita
 let seleccion = null;
 // const studentsTable = document.getElementById("students-table");
 // const studentsBody = document.getElementById("datos");
-
 
 function agregarColumnaTarea(nombreTarea, idtarea) {
   const tablaStudents = document.getElementById("students-table");
@@ -58,21 +57,42 @@ function agregarColumnaTarea(nombreTarea, idtarea) {
   thead.appendChild(th);
 
   // Agregar celdas en cada fila del tbody
-  tbody.querySelectorAll("tr").forEach((fila) => {
+  tbody.querySelectorAll("tr").forEach((fila, index) => {
     const td = document.createElement("td");
+    td.className = "attendance-cell";
     const input = document.createElement("input");
+
+    input.className = "input-list";
     input.type = "number";
     input.min = "0";
     input.max = "100";
-    input.style.width = "60px";
     input.classList.add("nota-tarea");
+    // input.addEventListener("keydown", function (e) {
+    //   if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+    //     e.preventDefault(); // Evita el comportamiento por defecto de las flechas
+    //   }
+    // });
     td.appendChild(input);
     fila.appendChild(td);
   });
+  tbody.addEventListener("keydown", function (e) {
+    if (e.target.tagName === "INPUT" && e.target.type === "number") {
+      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        e.preventDefault();
+
+        const allInputs = [...tbody.querySelectorAll(".nota-tarea")];
+        const index = allInputs.indexOf(e.target);
+
+        if (e.key === "ArrowUp" && index > 0) {
+          allInputs[index - 1].focus();
+        }
+        if (e.key === "ArrowDown" && index < allInputs.length - 1) {
+          allInputs[index + 1].focus();
+        }
+      }
+    }
+  });
 }
-
-
-
 
 function loadTasksData() {
   const taskListContainer = document.getElementById("task-list");
@@ -104,15 +124,15 @@ function loadTasksData() {
         }
 
         tareas.forEach((t) => {
-  const taskItem = document.createElement("div");
-  taskItem.classList.add("task-item");
-  taskItem.style.border = "1px solid #ccc";
-  taskItem.style.padding = "10px";
-  taskItem.style.marginBottom = "10px";
-  taskItem.style.borderRadius = "5px";
-  taskItem.style.backgroundColor = "#f9f9f9";
+          const taskItem = document.createElement("div");
+          taskItem.classList.add("task-item");
+          taskItem.style.border = "1px solid #ccc";
+          taskItem.style.padding = "10px";
+          taskItem.style.marginBottom = "10px";
+          taskItem.style.borderRadius = "5px";
+          taskItem.style.backgroundColor = "#f9f9f9";
 
-  taskItem.innerHTML = `
+          taskItem.innerHTML = `
     <h4 style="margin: 0 0 5px 0;">${t.titulo}</h4>
     <p style="margin: 0 0 5px 0;">${t.descripcion}</p>
     <span style="font-weight: bold;">Valor: ${t.valor}</span>
@@ -121,17 +141,17 @@ function loadTasksData() {
     <button class="btn btn-danger btn-eliminar">Eliminar</button>
   `;
 
-  // Botones de editar y eliminar
-  const btnEditar = taskItem.querySelector(".btn-editar");
-  const btnEliminar = taskItem.querySelector(".btn-eliminar");
+          // Botones de editar y eliminar
+          const btnEditar = taskItem.querySelector(".btn-editar");
+          const btnEliminar = taskItem.querySelector(".btn-eliminar");
 
-  btnEditar.addEventListener("click", () => {
-    editarTarea(t);
-  });
+          btnEditar.addEventListener("click", () => {
+            editarTarea(t);
+          });
 
-  btnEliminar.addEventListener("click", () => {
-    eliminarTarea(t);
-  });
+          btnEliminar.addEventListener("click", () => {
+            eliminarTarea(t);
+          });
 
           taskListContainer.appendChild(taskItem);
         });
@@ -175,7 +195,7 @@ function savelists() {
   const datos = [];
 
   filas.forEach((fila) => {
-    const valor = fila.querySelector(".input-list").value;
+    const valor = fila.querySelector(".codigo-lista").value;
     if (!valor) {
       llenas = false;
       return;
@@ -201,6 +221,7 @@ function savelists() {
         .then((response) => response.json())
         .then((data) => {
           console.log("Respuesta del servidor:", data);
+          attendanceColumnVisible = false;
         })
         .catch((error) => {
           console.error("Error al hacer la solicitud:", error);
@@ -275,16 +296,34 @@ function toggleAttendanceColumn() {
       const input = document.createElement("input");
       input.type = "number";
       input.classList.add("input-list");
+      input.classList.add("codigo-lista");
       input.setAttribute("onblur", "predeterminado(this)");
       input.addEventListener("click", function () {
         this.select();
       });
+
       attendanceCell.appendChild(input);
       row.appendChild(attendanceCell);
     });
+    cuerpotabla.addEventListener("keydown", function (e) {
+      if (e.target.tagName === "INPUT" && e.target.type === "number") {
+        if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+          e.preventDefault();
+
+          const allInputs = [...cuerpotabla.querySelectorAll(".codigo-lista")];
+          const index = allInputs.indexOf(e.target);
+
+          if (e.key === "ArrowUp" && index > 0) {
+            allInputs[index - 1].focus();
+          }
+          if (e.key === "ArrowDown" && index < allInputs.length - 1) {
+            allInputs[index + 1].focus();
+          }
+        }
+      }
+    });
 
     attendanceColumnVisible = true;
-    btnListar.textContent = "Ocultar Lista";
   } else {
     const studentsBody = document.getElementById("datos");
     const studentsTable = document.getElementById("students-table");
@@ -304,7 +343,6 @@ function toggleAttendanceColumn() {
     });
 
     attendanceColumnVisible = false;
-    btnListar.textContent = "Listar";
   }
 }
 function mostrarFormulario() {
@@ -465,7 +503,11 @@ async function agregarTareasExistentes() {
   const grupo = seleccion.getAttribute("data-grupo");
 
   try {
-    const res = await fetch(`php/obtener_tareas.php?materia=${encodeURIComponent(materia)}&grupo=${encodeURIComponent(grupo)}`);
+    const res = await fetch(
+      `php/obtener_tareas.php?materia=${encodeURIComponent(
+        materia
+      )}&grupo=${encodeURIComponent(grupo)}`
+    );
     const data = await res.json();
 
     if (data.status === "ok") {
@@ -607,12 +649,20 @@ document.getElementById("save-task-btn").addEventListener("click", function () {
   const valor = document.getElementById("task-value").value.trim();
 
   if (!titulo || !descripcion || !valor) {
-    Swal.fire("Campos incompletos", "Por favor llena todos los campos.", "warning");
+    Swal.fire(
+      "Campos incompletos",
+      "Por favor llena todos los campos.",
+      "warning"
+    );
     return;
   }
 
   if (!seleccion) {
-    Swal.fire("Selecciona una materia", "Debes seleccionar una materia antes de guardar la tarea.", "warning");
+    Swal.fire(
+      "Selecciona una materia",
+      "Debes seleccionar una materia antes de guardar la tarea.",
+      "warning"
+    );
     return;
   }
 
@@ -632,8 +682,8 @@ function guardarNuevaTarea(titulo, descripcion, valor) {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({ titulo, descripcion, valor, materia, grupo }),
   })
-    .then(res => res.json())
-    .then(data => {
+    .then((res) => res.json())
+    .then((data) => {
       if (data.status === "ok") {
         Swal.fire("Tarea guardada", data.message, "success").then(() => {
           //agregarColumnaTarea(titulo, data.idtarea); // Usa el id real
@@ -645,7 +695,7 @@ function guardarNuevaTarea(titulo, descripcion, valor) {
         Swal.fire("Error", data.message, "error");
       }
     })
-    .catch(err => {
+    .catch((err) => {
       Swal.fire("Error", "Hubo un problema al guardar la tarea.", "error");
       console.error(err);
     });
@@ -659,15 +709,16 @@ function modificarTareaExistente(titulo, descripcion, valor) {
       idtarea: tareaEnEdicion.idtarea,
       titulo,
       descripcion,
-      valor
+      valor,
     }),
   })
-    .then(res => res.json())
-    .then(data => {
+    .then((res) => res.json())
+    .then((data) => {
       if (data.status === "ok") {
         Swal.fire("Tarea modificada", data.message, "success").then(() => {
-
-          const thTarea = document.querySelector(`th[data-idtarea='${tareaEnEdicion.idtarea}']`);
+          const thTarea = document.querySelector(
+            `th[data-idtarea='${tareaEnEdicion.idtarea}']`
+          );
           if (thTarea) {
             const div = thTarea.querySelector("div");
             let parte1 = titulo;
@@ -690,12 +741,11 @@ function modificarTareaExistente(titulo, descripcion, valor) {
         Swal.fire("Error", data.message, "error");
       }
     })
-    .catch(err => {
+    .catch((err) => {
       Swal.fire("Error", "Hubo un problema al modificar la tarea.", "error");
       console.error(err);
     });
 }
-
 
 function mostrarFormulario() {
   const formTareas = document.getElementById("form-tareas");
@@ -703,14 +753,14 @@ function mostrarFormulario() {
   const botonNueva = document.getElementById("nueva-tarea-wrapper");
 
   //if (!tareaFormVisible) {
-    // Mostrar formulario y ocultar lista de tareas
-    formTareas.style.display = "block";
-    taskList.style.display = "none";
-    botonNueva.style.display = "none";
+  // Mostrar formulario y ocultar lista de tareas
+  formTareas.style.display = "block";
+  taskList.style.display = "none";
+  botonNueva.style.display = "none";
 
-     // Limpiar campos
+  // Limpiar campos
 
-    document.getElementById("task-title").value = "";
+  document.getElementById("task-title").value = "";
   document.getElementById("task-description").value = "";
   document.getElementById("task-value").value = "";
 
@@ -718,24 +768,24 @@ function mostrarFormulario() {
   modoTarea = "nuevo";
   tareaEnEdicion = null;
 
-    // Cambiar texto del botón
+  // Cambiar texto del botón
   document.getElementById("save-task-btn").textContent = "Guardar tarea";
 
-    // Agregar flechita de regreso
-    if (!document.getElementById("back-arrow")) {
-      const backArrow = document.createElement("span");
-      backArrow.id = "back-arrow";
-      backArrow.innerHTML = "← Volver";
-      backArrow.style.cursor = "pointer";
-      backArrow.style.color = "#007bff";
-      backArrow.style.marginBottom = "10px";
-      backArrow.style.display = "inline-block";
-      backArrow.onclick = confirmarSalirDelFormulario;
-      formTareas.prepend(backArrow);
-    }
+  // Agregar flechita de regreso
+  if (!document.getElementById("back-arrow")) {
+    const backArrow = document.createElement("span");
+    backArrow.id = "back-arrow";
+    backArrow.innerHTML = "← Volver";
+    backArrow.style.cursor = "pointer";
+    backArrow.style.color = "#007bff";
+    backArrow.style.marginBottom = "10px";
+    backArrow.style.display = "inline-block";
+    backArrow.onclick = confirmarSalirDelFormulario;
+    formTareas.prepend(backArrow);
+  }
 
-    tareaFormVisible = true;
- // }
+  tareaFormVisible = true;
+  // }
 }
 
 function confirmarSalirDelFormulario() {
@@ -792,12 +842,11 @@ function abrirModal() {
 
   tareaFormVisible = false;
   loadTasksData(); // Cargar las tareas
-
 }
 
 function editarTarea(tarea) {
   // Mostrar formulario y ocultar lista
- mostrarFormulario();
+  mostrarFormulario();
 
   document.getElementById("task-title").value = tarea.titulo;
   document.getElementById("task-description").value = tarea.descripcion;
@@ -809,9 +858,8 @@ function editarTarea(tarea) {
   tareaEnEdicion = tarea;
 }
 
-
 function eliminarTarea(tarea) {
-   console.log("Función eliminarTarea llamada", tarea);
+  console.log("Función eliminarTarea llamada", tarea);
   Swal.fire({
     title: "¿Estás seguro?",
     text: "Esta acción eliminará la tarea.",
@@ -821,8 +869,6 @@ function eliminarTarea(tarea) {
     cancelButtonText: "Cancelar",
   }).then((result) => {
     if (result.isConfirmed) {
-      
-
       fetch("php/eliminar_tarea.php", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -834,19 +880,24 @@ function eliminarTarea(tarea) {
         .then((data) => {
           if (data.status === "ok") {
             Swal.fire("Eliminada", data.message, "success").then(() => {
+              // Eliminar la columna de la tabla de alumnos en tiempo real
+              const thTarea = document.querySelector(
+                `th[data-idtarea='${tarea.idtarea}']`
+              );
+              if (thTarea) {
+                const index = Array.from(thTarea.parentNode.children).indexOf(
+                  thTarea
+                );
+                thTarea.remove();
 
-               // Eliminar la columna de la tabla de alumnos en tiempo real
-    const thTarea = document.querySelector(`th[data-idtarea='${tarea.idtarea}']`);
-    if (thTarea) {
-        const index = Array.from(thTarea.parentNode.children).indexOf(thTarea);
-        thTarea.remove();
-
-        // Eliminar las celdas correspondientes en cada fila
-        const filas = document.querySelectorAll("#students-table tbody tr");
-        filas.forEach((fila) => {
-            fila.removeChild(fila.children[index]);
-        });
-    }
+                // Eliminar las celdas correspondientes en cada fila
+                const filas = document.querySelectorAll(
+                  "#students-table tbody tr"
+                );
+                filas.forEach((fila) => {
+                  fila.removeChild(fila.children[index]);
+                });
+              }
               loadTasksData();
             });
           } else {
@@ -860,4 +911,3 @@ function eliminarTarea(tarea) {
     }
   });
 }
-
