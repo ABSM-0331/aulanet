@@ -122,6 +122,7 @@
 
             <!-- Main content - Right side with students list -->
             <div class="main-content">
+
                 <div class="students-section">
                     <h3>Listado de Alumnos</h3>
 
@@ -145,8 +146,13 @@
                         </div>
                     </div>
 
+                    <div class="tab-header">
+                        <button class="tab-button active" data-tab="hacer">Hacer</button>
+                        <button class="tab-button" data-tab="saber">Saber</button>
+                        <button class="tab-button" data-tab="ser">Ser</button>
+                    </div>
                     <div id="contenedor-tabla" class="table-container">
-                        <div class="centro-tabla">
+                        <div class="centro-tabla" id="centro-tabla">
                             <span>Selecione una materia y un parcial para ver la lista</span>
                         </div>
                     </div>
@@ -169,64 +175,64 @@
             <form id="form-parcial">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="materia-id">ID Materia:</label>
-                        <input type="text" id="materia-id" required>
+                        <label for="materia-id">Materia:</label>
+                        <input type="text" id="materia-id" name="materia" required>
                     </div>
                     <div class="form-group">
                         <label for="grupo-id">Grupo:</label>
-                        <input type="text" id="grupo-id" required>
+                        <input type="text" id="grupo-id" name="grupo" required>
                     </div>
                     <div class="form-group">
                         <label for="clave-id">Clave:</label>
-                        <input type="text" id="clave-id" required>
+                        <input type="text" id="clave-id" name="clave" required>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="numero-parcial">Número de Parcial:</label>
-                        <input type="number" id="numero-parcial" min="1" max="5" required>
+                        <input type="number" id="numero-parcial" name="numero_parcial" min="1" max="5" required>
                     </div>
                     <div class="form-group">
                         <label for="periodo-id">Periodo:</label>
-                        <input type="text" id="periodo-id" required>
+                        <input type="text" id="periodo-id" name="periodo" required>
                     </div>
                 </div>
 
                 <div class="form-row criterios">
                     <div class="form-group">
                         <label for="saber-percent">% Saber:</label>
-                        <input type="number" id="saber-percent" min="0" max="100" value="40" readonly>
+                        <input type="number" id="saber-percent" name="saber" min="0" max="100" value="40" readonly>
                     </div>
                     <div class="form-group">
                         <label for="hacer-percent">% Hacer:</label>
-                        <input type="number" id="hacer-percent" min="0" max="100" value="50" readonly>
+                        <input type="number" id="hacer-percent" name="hacer" min="0" max="100" value="50" readonly>
                     </div>
                     <div class="form-group">
                         <label for="ser-percent">% Ser:</label>
-                        <input type="number" id="ser-percent" min="0" max="100" value="10" readonly>
+                        <input type="number" id="ser-percent" name="ser" min="0" max="100" value="10" readonly>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="total-percent">Σ del Parcial:</label>
-                        <input type="number" id="total-percent" value="100" readonly>
+                        <input type="number" id="total-percent" name="total" value="100" readonly>
                     </div>
                     <div class="form-group">
                         <label for="restante-percent">% Restante:</label>
-                        <input type="number" id="restante-percent" value="0" readonly>
+                        <input type="number" id="restante-percent" name="restante" value="0" readonly>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="fecha-apertura">Fecha de apertura:</label>
-                        <input type="date" id="fecha-apertura" required>
+                        <input type="date" id="fecha-apertura" name="fecha_apertura" required>
                     </div>
                     <div class="form-group">
                         <label for="fecha-cierre">Fecha de cierre:</label>
-                        <input type="date" id="fecha-cierre" required>
+                        <input type="date" id="fecha-cierre" name="fecha_cierre" required>
                     </div>
                 </div>
 
@@ -242,9 +248,9 @@
     <div id="modalGestionarTareas" class="modalTareas">
         <div class="modalTareas-content">
             <div class="modalTareas-header">
-                <span class="close" onclick="closeModalTareasFunction()">&times;</span>
                 <h2>Gestionar Tareas</h2>
-                <span>10/40</span>
+                <span class="total-tareas"></span>
+                <span class="close-modal" onclick="closeModalTareasFunction()">&times;</span>
             </div>
 
             <!-- Botón para mostrar el formulario -->
@@ -264,6 +270,15 @@
                 <div>
                     <label for="task-description">Descripción:</label>
                     <textarea id="task-description" placeholder="Descripción de la tarea" required></textarea>
+                </div>
+                <div>
+                    <label for="task-criterio">Criterio:</label>
+                    <select id="task-criterio" required>
+                        <option value="" disabled selected>Seleccione un criterio</option>
+                        <option value="hacer">Hacer</option>
+                        <option value="saber">Saber</option>
+                        <option value="ser">Ser</option>
+                    </select>
                 </div>
 
                 <!-- Campo para el valor de la tarea -->

@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Escolar - Gestión de Materias</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-color: #1a73e8;
+            --primary-dark: #0d47a1;
+            --secondary-color: #4caf50;
+            --secondary-dark: #2e7d32;
+            --text-color: #333;
+            --light-gray: #f5f5f5;
+            --medium-gray: #e0e0e0;
+            --border-color: #ddd;
+            --danger-color: #f44336;
+            --warning-color: #ff9800;
+            --success-color: #4caf50;
+            --sidebar-width: 350px;
+            /* Ancho de la columna izquierda */
+            --tab-active-color: #1a73e8;
+            --tab-inactive-color: #666;
+        }
+
+        body {
+            background-color: #f9f9f9;
+            color: var(--text-color);
+            line-height: 1.6;
+            height: 100vh;
+            overflow: hidden;
+            /* Evitar scroll en el body */
+        }
+
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header styles */
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: white;
+            z-index: 10;
+        }
+
+        .logo h1 {
+            color: var(--primary-color);
+            font-size: 1.6rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            font-weight: 500;
+        }
+
+        /* Button styles */
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--medium-gray);
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #d0d0d0;
+        }
+
+        .btn-logout {
+            background-color: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-logout:hover {
+            background-color: #e0e0e0;
+        }
+
+        .btn-list {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-list:hover {
+            background-color: var(--secondary-dark);
+        }
+
+        .btn-edit {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        /* New Layout - Two column layout */
+        .content-wrapper {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 60px);
+            /* Altura total menos el header */
+        }
+
+        /* Left sidebar - fixed, sin scroll */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: white;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            gap: 15px;
+            /* Quitado overflow-y: auto; para eliminar el scroll */
+        }
+
+        /* Right content area - scrollable */
+        .main-content {
+            flex: 1;
+            overflow: hidden;
+            padding: 15px;
+        }
+
+        /* Course selector and Parcial selector */
+        .course-selector,
+        .parcial-selector {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .course-selector h2,
+        .parcial-selector h3 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        /* Make the content of both panels more compact */
+        .select-container,
+        .teacher-info,
+        .formula-section,
+        .parcial-controls,
+        .parcial-table-container {
+            margin-bottom: 10px;
+        }
+
+        /* Push action buttons to the bottom */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+            padding-top: 10px;
+        }
+
+        .select-container select {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .teacher-info {
+            padding: 8px;
+            background-color: var(--light-gray);
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .formula-section label {
+            display: block;
+            margin-bottom: 3px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .formula-section input {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .parcial-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .parcial-controls select {
+            padding: 6px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .period-info {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.8rem;
+        }
+
+        /* Tables */
+        .parcial-table-container {
+            display: flex;
+            flex-direction: column;
+            /* Quitar altura máxima y scroll para mostrar siempre las 3 filas */
+        }
+
+        .parcial-table,
+        .students-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .parcial-table th,
+        .parcial-table td,
+        .students-table th,
+        .students-table td {
+            padding: 8px 10px;
+            text-align: left;
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        .parcial-table th,
+        .students-table th {
+            background-color: var(--light-gray);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        /* Ajustar el ancho de las columnas de la tabla de alumnos */
+        .students-table th:nth-child(1),
+        .students-table td:nth-child(1) {
+            width: 70px;
+            /* Ancho para "No. Lista" */
+            white-space: nowrap;
+        }
+
+        .students-table th:nth-child(2),
+        .students-table td:nth-child(2) {
+            width: 100px;
+            /* Ancho para "No. Control" */
+            white-space: nowrap;
+        }
+
+        .parcial-table tr:nth-child(even),
+        .students-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* Tab System Styles */
+        .tab-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .tab-header {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            background-color: #fafafa;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: var(--tab-inactive-color);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-button:hover {
+            background-color: #f0f0f0;
+            color: var(--primary-color);
+        }
+
+        .tab-button.active {
+            color: var(--tab-active-color);
+            border-bottom-color: var(--tab-active-color);
+            background-color: white;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            padding: 15px;
+            overflow: hidden;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        .tab-content h3 {
+            margin-bottom: 12px;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 800px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            animation: modalFadeIn 0.3s;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-header h2 {
+            color: var(--primary-color);
+        }
+
+        .close-modal {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .close-modal:hover {
+            color: var(--danger-color);
+        }
+
+        /* Form styles */
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            flex: 1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .criterios input {
+            background-color: var(--light-gray);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Icons */
+        .icon-edit::before {
+            content: "✏️";
+        }
+
+        .icon-list::before {
+            content: "📋";
+        }
+
+        /* Attendance column styles */
+        .attendance-cell {
+            display: flex;
+            gap: 5px;
+        }
+
+        .attendance-option {
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .option-0 {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .option-1 {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .option-2 {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .option-3 {
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .selected {
+            box-shadow: 0 0 0 2px black;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .content-wrapper {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 50vh;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .main-content {
+                height: 50vh;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .parcial-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 20px auto;
+            }
+
+            .tab-button {
+                padding: 10px 12px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="main-header">
+            <div class="logo">
+                <h1>Sistema Escolar</h1>
+            </div>
+            <div class="user-info">
+                <span class="user-name">Prof. Jorge Angel Santamaria Magaña</span>
+                <button class="btn btn-logout">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            <!-- Sidebar - Fixed left column -->
+            <div class="sidebar">
+                <!-- Course selector -->
+                <div class="course-selector">
+                    <h2>Selección de Materia</h2>
+                    <div class="select-container">
+                        <select id="materia-select">
+                            <option value="" disabled selected>Seleccione una materia</option>
+                            <option value="MAT101">MAT101 - Matemáticas Básicas - Grupo A</option>
+                            <option value="FIS202">FIS202 - Física Aplicada - Grupo B</option>
+                            <option value="QUI303">QUI303 - Química Orgánica - Grupo C</option>
+                        </select>
+                    </div>
+
+                    <div class="teacher-info">
+                        <p><strong>Catedrático:</strong> <span id="teacher-id">136</span></p>
+                        <p><strong>Nombre:</strong> <span id="teacher-name">Jorge Angel Santamaria Magaña</span></p>
+                    </div>
+
+                    <div class="formula-section">
+                        <label for="formula-input">Fórmula de Calificación Final:</label>
+                        <input type="text" id="formula-input" placeholder="Ej: (P1*0.3)+(P2*0.3)+(P3*0.4)">
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="btn-aperturar" class="btn btn-primary">Aperturar Parcial</button>
+                        <button id="btn-actividades" class="btn btn-secondary">Gestionar Actividades</button>
+                    </div>
+                </div>
+
+                <!-- Parcial selector -->
+                <div class="parcial-selector">
+                    <h3>Parciales</h3>
+                    <div class="parcial-controls">
+                        <select id="parcial-select">
+                            <option value="1">Parcial 1</option>
+                            <option value="2">Parcial 2</option>
+                            <option value="3">Parcial 3</option>
+                        </select>
+                        <div class="period-info">
+                            <span>Periodo: <strong>2241</strong></span>
+                            <span>AGO24-ENE25</span>
+                        </div>
+                        <button id="btn-listar" class="btn btn-list">
+                            <i class="icon-list"></i> Listar
+                        </button>
+                    </div>
+
+                    <div class="parcial-table-container">
+                        <table class="parcial-table">
+                            <thead>
+                                <tr>
+                                    <th>Parcial</th>
+                                    <th>Fecha</th>
+                                    <th>Asistencias</th>
+                                    <th>Fórmula</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>15/09/2024</td>
+                                    <td>95%</td>
+                                    <td>(S*0.4)+(H*0.5)+(S*0.1)</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>20/10/2024</td>
+                                    <td>92%</td>
+                                    <td>(S*0.4)+(H*0.5)+(S*0.1)</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>--/--/----</td>
+                                    <td>--</td>
+                                    <td>--</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main content - Right side with tabbed students list -->
+            <div class="main-content">
+                <div class="tab-container">
+                    <!-- Tab Headers -->
+                    <div class="tab-header">
+                        <button class="tab-button active" data-tab="hacer">Hacer</button>
+                        <button class="tab-button" data-tab="saber">Saber</button>
+                        <button class="tab-button" data-tab="ser">Ser</button>
+                    </div>
+
+                    <!-- Tab Contents -->
+                    <div id="tab-hacer" class="tab-content active">
+                        <h3>Listado de Alumnos - Criterio Hacer</h3>
+                        <div class="table-container">
+                            <table id="students-table-hacer" class="students-table">
+                                <thead>
+                                    <tr>
+                                        <th>No. Lista</th>
+                                        <th>No. Control</th>
+                                        <th>Nombre del Alumno</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="students-body-hacer">
+                                    <!-- Student data will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="tab-saber" class="tab-content">
+                        <h3>Listado de Alumnos - Criterio Saber</h3>
+                        <div class="table-container">
+                            <table id="students-table-saber" class="students-table">
+                                <thead>
+                                    <tr>
+                                        <th>No. Lista</th>
+                                        <th>No. Control</th>
+                                        <th>Nombre del Alumno</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="students-body-saber">
+                                    <!-- Student data will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="tab-ser" class="tab-content">
+                        <h3>Listado de Alumnos - Criterio Ser</h3>
+                        <div class="table-container">
+                            <table id="students-table-ser" class="students-table">
+                                <thead>
+                                    <tr>
+                                        <th>No. Lista</th>
+                                        <th>No. Control</th>
+                                        <th>Nombre del Alumno</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="students-body-ser">
+                                    <!-- Student data will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para apertura de parcial -->
+    <div id="modal-parcial" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Apertura de Parcial</h2>
+                <button id="btn-edit-criterios" class="btn btn-edit">
+                    <i class="icon-edit"></i> Editar criterios
+                </button>
+                <span class="close-modal">&times;</span>
+            </div>
+
+            <form id="form-parcial">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="materia-id">ID Materia:</label>
+                        <input type="text" id="materia-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="grupo-id">Grupo:</label>
+                        <input type="text" id="grupo-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="clave-id">Clave:</label>
+                        <input type="text" id="clave-id" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="numero-parcial">Número de Parcial:</label>
+                        <input type="number" id="numero-parcial" min="1" max="5" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="periodo-id">Periodo:</label>
+                        <input type="text" id="periodo-id" required>
+                    </div>
+                </div>
+
+                <div class="form-row criterios">
+                    <div class="form-group">
+                        <label for="saber-percent">% Saber:</label>
+                        <input type="number" id="saber-percent" min="0" max="100" value="40" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="hacer-percent">% Hacer:</label>
+                        <input type="number" id="hacer-percent" min="0" max="100" value="50" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="ser-percent">% Ser:</label>
+                        <input type="number" id="ser-percent" min="0" max="100" value="10" readonly>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="total-percent">Σ del Parcial:</label>
+                        <input type="number" id="total-percent" value="100" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="restante-percent">% Restante:</label>
+                        <input type="number" id="restante-percent" value="0" readonly>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fecha-apertura">Fecha de apertura:</label>
+                        <input type="date" id="fecha-apertura" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha-cierre">Fecha de cierre:</label>
+                        <input type="date" id="fecha-cierre" required>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="btn-cancelar">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Aperturar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const materiaSelect = document.getElementById('materia-select');
+        const parcialSelect = document.getElementById('parcial-select');
+        const btnListar = document.getElementById('btn-listar');
+        const btnAperturar = document.getElementById('btn-aperturar');
+        const modalParcial = document.getElementById('modal-parcial');
+        const closeModal = document.querySelector('.close-modal');
+        const btnCancelar = document.getElementById('btn-cancelar');
+        const formParcial = document.getElementById('form-parcial');
+        const btnEditCriterios = document.getElementById('btn-edit-criterios');
+
+        // Tab elements
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // Sample student data
+        const students = [
+            { id: 1, controlNum: '20210001', name: 'Ana García Martínez' },
+            { id: 2, controlNum: '20210002', name: 'Carlos López Sánchez' },
+            { id: 3, controlNum: '20210003', name: 'María Rodríguez Pérez' },
+            { id: 4, controlNum: '20210004', name: 'Juan Hernández González' },
+            { id: 5, controlNum: '20210005', name: 'Laura Díaz Ramírez' },
+            { id: 6, controlNum: '20210006', name: 'Roberto Flores Torres' },
+            { id: 7, controlNum: '20210007', name: 'Sofía Vázquez Reyes' },
+            { id: 8, controlNum: '20210008', name: 'Daniel Morales Castro' },
+            { id: 9, controlNum: '20210009', name: 'Patricia Ortiz Mendoza' },
+            { id: 10, controlNum: '20210010', name: 'Miguel Ángel Ruiz Vargas' },
+            { id: 11, controlNum: '20210011', name: 'Gabriela Jiménez Lara' },
+            { id: 12, controlNum: '20210012', name: 'Alejandro Romero Silva' },
+            { id: 13, controlNum: '20210013', name: 'Fernanda Torres Navarro' },
+            { id: 14, controlNum: '20210014', name: 'Eduardo Gutiérrez Ríos' },
+            { id: 15, controlNum: '20210015', name: 'Valeria Sánchez Acosta' }
+        ];
+
+        // Track attendance columns for each tab
+        const attendanceColumns = {
+            hacer: false,
+            saber: false,
+            ser: false
+        };
+
+        // Current active tab
+        let currentTab = 'hacer';
+
+        // Initialize the page
+        function init() {
+            populateAllStudentsTables();
+            setupEventListeners();
+            setupFormValidation();
+            setupTabSystem();
+        }
+
+        // Populate all students tables with data
+        function populateAllStudentsTables() {
+            const tabs = ['hacer', 'saber', 'ser'];
+
+            tabs.forEach(tab => {
+                const studentsBody = document.getElementById(`students-body-${tab}`);
+                studentsBody.innerHTML = '';
+
+                students.forEach(student => {
+                    const row = document.createElement('tr');
+
+                    // Create cells for list number, control number, and name
+                    const listNumCell = document.createElement('td');
+                    listNumCell.textContent = student.id;
+
+                    const controlNumCell = document.createElement('td');
+                    controlNumCell.textContent = student.controlNum;
+
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = student.name;
+
+                    // Append cells to row
+                    row.appendChild(listNumCell);
+                    row.appendChild(controlNumCell);
+                    row.appendChild(nameCell);
+
+                    // Append row to table body
+                    studentsBody.appendChild(row);
+                });
+            });
+        }
+
+        // Setup tab system
+        function setupTabSystem() {
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const tabName = this.getAttribute('data-tab');
+                    switchTab(tabName);
+                });
+            });
+        }
+
+        // Switch between tabs
+        function switchTab(tabName) {
+            // Remove active class from all buttons and contents
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // Add active class to selected button and content
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            // Update current tab
+            currentTab = tabName;
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Subject selection change
+            materiaSelect.addEventListener('change', function () {
+                // In a real app, this would fetch students for the selected subject
+                console.log('Selected subject:', this.value);
+            });
+
+            // List button click - add attendance column to current tab
+            btnListar.addEventListener('click', function () {
+                toggleAttendanceColumn(currentTab);
+            });
+
+            // Open modal for new partial
+            btnAperturar.addEventListener('click', function () {
+                openModal();
+            });
+
+            // Close modal
+            closeModal.addEventListener('click', function () {
+                closeModalFunction();
+            });
+
+            btnCancelar.addEventListener('click', function () {
+                closeModalFunction();
+            });
+
+            // Edit criteria button
+            btnEditCriterios.addEventListener('click', function () {
+                toggleCriteriaEditing();
+            });
+
+            // Close modal when clicking outside
+            window.addEventListener('click', function (event) {
+                if (event.target === modalParcial) {
+                    closeModalFunction();
+                }
+            });
+        }
+
+        // Toggle attendance column for specific tab
+        function toggleAttendanceColumn(tabName) {
+            const studentsTable = document.getElementById(`students-table-${tabName}`);
+            const studentsBody = document.getElementById(`students-body-${tabName}`);
+
+            if (!attendanceColumns[tabName]) {
+                // Add header for attendance
+                const headerRow = studentsTable.querySelector('thead tr');
+                const attendanceHeader = document.createElement('th');
+                attendanceHeader.textContent = 'Asistencia';
+                attendanceHeader.classList.add('attendance-header');
+                headerRow.appendChild(attendanceHeader);
+
+                // Add attendance cells to each row
+                const rows = studentsBody.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const attendanceCell = document.createElement('td');
+                    attendanceCell.classList.add('attendance-cell');
+
+                    // Create attendance options (0=absent, 1=present, 2=late, 3=excused)
+                    const options = [
+                        { value: 0, label: '0', class: 'option-0', title: 'Falta' },
+                        { value: 1, label: '1', class: 'option-1', title: 'Asistencia' },
+                        { value: 2, label: '2', class: 'option-2', title: 'Retardo' },
+                        { value: 3, label: '3', class: 'option-3', title: 'Justificado' }
+                    ];
+
+                    options.forEach(option => {
+                        const optionElement = document.createElement('span');
+                        optionElement.textContent = option.label;
+                        optionElement.classList.add('attendance-option', option.class);
+                        optionElement.title = option.title;
+                        optionElement.dataset.value = option.value;
+
+                        optionElement.addEventListener('click', function () {
+                            // Remove selected class from all options in this cell
+                            attendanceCell.querySelectorAll('.attendance-option').forEach(opt => {
+                                opt.classList.remove('selected');
+                            });
+
+                            // Add selected class to clicked option
+                            this.classList.add('selected');
+                        });
+
+                        attendanceCell.appendChild(optionElement);
+                    });
+
+                    row.appendChild(attendanceCell);
+                });
+
+                attendanceColumns[tabName] = true;
+                btnListar.textContent = `Ocultar Lista ${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`;
+            } else {
+                // Remove attendance header
+                const attendanceHeader = studentsTable.querySelector('.attendance-header');
+                if (attendanceHeader) {
+                    attendanceHeader.remove();
+                }
+
+                // Remove attendance cells
+                const rows = studentsBody.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const lastCell = row.lastElementChild;
+                    if (lastCell && lastCell.classList.contains('attendance-cell')) {
+                        lastCell.remove();
+                    }
+                });
+
+                attendanceColumns[tabName] = false;
+                btnListar.innerHTML = '<i class="icon-list"></i> Listar';
+            }
+        }
+
+        // Open modal
+        function openModal() {
+            modalParcial.style.display = 'block';
+
+            // Set default values
+            document.getElementById('materia-id').value = materiaSelect.value || '';
+            document.getElementById('fecha-apertura').value = getCurrentDate();
+
+            // Calculate default closing date (30 days from now)
+            const closingDate = new Date();
+            closingDate.setDate(closingDate.getDate() + 30);
+            document.getElementById('fecha-cierre').value = formatDate(closingDate);
+        }
+
+        // Close modal
+        function closeModalFunction() {
+            modalParcial.style.display = 'none';
+            formParcial.reset();
+        }
+
+        // Toggle criteria editing
+        function toggleCriteriaEditing() {
+            const criteriaInputs = document.querySelectorAll('.criterios input');
+            const isReadOnly = criteriaInputs[0].readOnly;
+
+            criteriaInputs.forEach(input => {
+                input.readOnly = !isReadOnly;
+                if (!isReadOnly) {
+                    input.style.backgroundColor = 'white';
+                } else {
+                    input.style.backgroundColor = 'var(--light-gray)';
+                }
+            });
+
+            // Update button text
+            if (isReadOnly) {
+                btnEditCriterios.innerHTML = '<i class="icon-edit"></i> Guardar criterios';
+            } else {
+                btnEditCriterios.innerHTML = '<i class="icon-edit"></i> Editar criterios';
+                updateTotals();
+            }
+        }
+
+        // Update totals when criteria change
+        function updateTotals() {
+            const saber = parseInt(document.getElementById('saber-percent').value) || 0;
+            const hacer = parseInt(document.getElementById('hacer-percent').value) || 0;
+            const ser = parseInt(document.getElementById('ser-percent').value) || 0;
+
+            const total = saber + hacer + ser;
+            document.getElementById('total-percent').value = total;
+
+            const restante = 100 - total;
+            document.getElementById('restante-percent').value = restante;
+        }
+
+        // Set up form validation
+        function setupFormValidation() {
+            // Add input event listeners to criteria inputs
+            const criteriaInputs = document.querySelectorAll('.criterios input');
+            criteriaInputs.forEach(input => {
+                input.addEventListener('input', updateTotals);
+            });
+
+            // Form submission
+            formParcial.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                // Validate form
+                const total = parseInt(document.getElementById('total-percent').value);
+
+                if (total !== 100) {
+                    alert('La suma de los criterios debe ser 100%');
+                    return;
+                }
+
+                // In a real app, this would save the partial data
+                alert('Parcial aperturado correctamente');
+                closeModalFunction();
+            });
+        }
+
+        // Helper function to get current date in YYYY-MM-DD format
+        function getCurrentDate() {
+            const now = new Date();
+            return formatDate(now);
+        }
+
+        // Format date as YYYY-MM-DD
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Initialize the page when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+
+</html>

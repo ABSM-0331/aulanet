@@ -5,9 +5,9 @@
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-:root {
-  /* Ancho de la columna izquierda */
-}
+/* :root { */
+/* Ancho de la columna izquierda */
+/* } */
 
 body {
   background-color: #f9f9f9;
@@ -17,7 +17,10 @@ body {
   overflow: hidden;
   /* Evitar scroll en el body */
 }
-
+.th-fecha,
+.th-tarea {
+  width: 30px;
+}
 .container {
   height: 100vh;
   display: flex;
@@ -538,8 +541,7 @@ body {
   text-align: center;
   white-space: normal; /* Permite saltos de línea */
   font-size: 12px;
-  max-width: 50px;     /* Limita ancho máximo */
+  max-width: 50px; /* Limita ancho máximo */
   word-wrap: break-word; /* Rompe palabras largas */
-  margin: 0 auto;      /* Centra el contenido horizontalmente */
+  margin: 0 auto; /* Centra el contenido horizontalmente */
 }
-
