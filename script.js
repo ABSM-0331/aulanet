@@ -1,5 +1,12 @@
+// Variables globales para almacenar la selección
+let selectedIdgru = null;
+let selectedMatcve = null;
+
+// Código para el botón "Ver Parciales"
+
+
 // DOM Elements
-const materiaSelect = document.getElementById("materia-select");
+//const materiaSelect = document.getElementById("materia-select");
 const parcialSelect = document.getElementById("parcial-select");
 const btnListar = document.getElementById("btn-listar");
 const tabla = document.getElementById("contenedor-tabla");
@@ -253,6 +260,18 @@ function setupEventListeners() {
       closeModalFunction();
     }
   });
+
+  comboBoxButton.addEventListener("click", () => {
+  const isVisible = comboBoxOptions.style.display === "block";
+  comboBoxOptions.style.display = isVisible ? "none" : "block";
+});
+
+// Cerrar si se hace clic fuera
+document.addEventListener("click", (event) => {
+  if (!event.target.closest(".combo-box")) {
+    comboBoxOptions.style.display = "none";
+  }
+});
 }
 
 // Toggle attendance column
@@ -317,13 +336,19 @@ function predeterminado(input) {
 }
 // Open modal
 function openModal() {
+  if (!seleccion) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Selección requerida',
+      text: 'Por favor, seleccione una materia primero.',
+    });
+    return;
+  }
   modalParcial.style.display = "block";
-
-  // Set default values
-  document.getElementById("materia-id").value = materiaSelect.value || "";
+  document.getElementById("materia-id").value = selectedMatcve || "";
+  document.getElementById("grupo-id").value = seleccion.getAttribute("data-grupo") || "";
+  document.getElementById("clave-id").value = selectedMatcve || "";
   document.getElementById("fecha-apertura").value = getCurrentDate();
-
-  // Calculate default closing date (30 days from now)
   const closingDate = new Date();
   closingDate.setDate(closingDate.getDate() + 30);
   document.getElementById("fecha-cierre").value = formatDate(closingDate);
@@ -429,9 +454,11 @@ function iniciarMaterias() {
 }
 function generarMaterias(options) {
   const container = document.getElementById("comboBoxOptions");
+  const button = document.getElementById("comboBoxButton");
   container.style.display = "none";
 
-  // Limpia antes de agregar
+  container.innerHTML = '<div class="custom-header"><div>Clave</div><div>Grupo</div><div>Materia</div><div>Parcial</div><div>Asistencis</div></div>';
+
   options.forEach((option) => {
     const customOption = document.createElement("div");
     customOption.classList.add("custom-option");
@@ -450,12 +477,16 @@ function generarMaterias(options) {
 
     customOption.addEventListener("click", function () {
       seleccion = this;
+      selectedIdgru = option.idgru;
+      selectedMatcve = option.matcve; // Ahora matcve es dmat.id_matcve
+      button.textContent = `${option.matnom} (${option.matcve}, ${option.paqcve})`;
+      container.style.display = "none";
+      console.log('Materia seleccionada - idgru:', selectedIdgru, 'matcve:', selectedMatcve);
       listarAlumnos();
     });
 
     container.appendChild(customOption);
   });
-  container.style.display = "none";
 }
 
 async function agregarTareasExistentes() {
@@ -580,17 +611,7 @@ async function cargarlista() {
 }
 
 // Mostrar/ocultar el comboBox
-comboBoxButton.addEventListener("click", () => {
-  const isVisible = comboBoxOptions.style.display === "block";
-  comboBoxOptions.style.display = isVisible ? "none" : "block";
-});
 
-// Cerrar si se hace clic fuera
-document.addEventListener("click", (event) => {
-  if (!event.target.closest(".combo-box")) {
-    comboBoxOptions.style.display = "none";
-  }
-});
 // Mostrar/ocultar el formulario de tarea
 function mostrarFormulario() {
   const formTareas = document.getElementById("form-tareas");
@@ -859,5 +880,6 @@ function eliminarTarea(tarea) {
         });
     }
   });
+
 }
 
