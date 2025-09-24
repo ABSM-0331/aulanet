@@ -5,7 +5,7 @@ let selectedMatcve = null;
 // Código para el botón "Ver Parciales"
 
 // DOM Elements
-//const materiaSelect = document.getElementById("materia-select");
+let materiaSelect = document.getElementById("materia-select");
 const parcialSelect = document.getElementById("parcial-select");
 const btnListar = document.getElementById("btn-listar");
 const tabla = document.getElementById("contenedor-tabla");
@@ -19,8 +19,10 @@ const btnGestionarTareas = document.getElementById("btn-actividades"); // Nuevo 
 const modalGestionarTareas = document.getElementById("modalGestionarTareas"); // Modal de tareas
 const formTareas = document.getElementById("form-tareas"); // Formulario de tareas
 const btnGuardarLista = document.getElementById("btn-guardar-lista");
+const tabButtons = document.querySelectorAll(".tab-button");
+// let btnactivo;
+// const body = document.getElementById("datos");
 // const studentsTable = document.getElementById("students-table");
-// const studentsBody = document.getElementById("datos");
 
 let modoTarea = "nuevo"; // Puede ser "nuevo" o "editar"
 let tareaEnEdicion = null; // Aquí guardaremos la tarea cuando se edita
@@ -45,7 +47,7 @@ function agregarColumnaTarea(nombreTarea, idtarea) {
     // Crear el encabezado
     const th = document.createElement("th");
     th.setAttribute("data-idtarea", idtarea); // Asocia el idtarea al th
-
+    th.classList.add("th-tarea");
     const div = document.createElement("div");
 
     let parte1 = nombreTarea;
@@ -65,20 +67,45 @@ function agregarColumnaTarea(nombreTarea, idtarea) {
     thead.appendChild(th);
 
     // Agregar celdas en cada fila del tbody
-    tbody.querySelectorAll("tr").forEach((fila) => {
+    tbody.querySelectorAll("tr").forEach((fila, index) => {
         const td = document.createElement("td");
+        td.className = "attendance-cell";
         const input = document.createElement("input");
+
+        input.className = "input-list";
         input.type = "number";
         input.min = "0";
         input.max = "100";
-        input.style.width = "60px";
         input.classList.add("nota-tarea");
+        // input.addEventListener("keydown", function (e) {
+        //   if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        //     e.preventDefault(); // Evita el comportamiento por defecto de las flechas
+        //   }
+        // });
         td.appendChild(input);
         fila.appendChild(td);
+    });
+    tbody.addEventListener("keydown", function (e) {
+        if (e.target.tagName === "INPUT" && e.target.type === "number") {
+            if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                e.preventDefault();
+
+                const allInputs = [...tbody.querySelectorAll(".nota-tarea")];
+                const index = allInputs.indexOf(e.target);
+
+                if (e.key === "ArrowUp" && index > 0) {
+                    allInputs[index - 1].focus();
+                }
+                if (e.key === "ArrowDown" && index < allInputs.length - 1) {
+                    allInputs[index + 1].focus();
+                }
+            }
+        }
     });
 }
 
 function loadTasksData() {
+    let total = 0;
     const taskListContainer = document.getElementById("task-list");
     taskListContainer.innerHTML = ""; // Limpiar lista antes de agregar nuevas
 
@@ -108,6 +135,8 @@ function loadTasksData() {
                 }
 
                 tareas.forEach((t) => {
+                    total += t.valor;
+                    console.log("Valor de tarea:", t.valor);
                     const taskItem = document.createElement("div");
                     taskItem.classList.add("task-item");
                     taskItem.style.border = "1px solid #ccc";
@@ -139,6 +168,10 @@ function loadTasksData() {
 
                     taskListContainer.appendChild(taskItem);
                 });
+                document.querySelector(
+                    ".total-tareas"
+                ).textContent = `${total}/40`;
+                console.log("total" + total);
             } else {
                 taskListContainer.innerHTML = `<p style="color:red;">Error al obtener tareas: ${data.message}</p>`;
             }
@@ -164,9 +197,11 @@ let attendanceColumnVisible = false;
 function init() {
     // populateStudentsTable();
     // cargarlista();
+    // populateAllStudentsTables();
     setupEventListeners();
     setupFormValidation();
     iniciarMaterias();
+    setupTabSystem();
 }
 
 function savelists() {
@@ -179,7 +214,7 @@ function savelists() {
     const datos = [];
 
     filas.forEach((fila) => {
-        const valor = fila.querySelector(".input-list").value;
+        const valor = fila.querySelector(".codigo-lista").value;
         if (!valor) {
             llenas = false;
             return;
@@ -205,11 +240,19 @@ function savelists() {
                 .then((response) => response.json())
                 .then((data) => {
                     console.log("Respuesta del servidor:", data);
+                    Swal.fire({
+                        title: "¡Pase de lista exitoso!",
+                        text: "La lista se guardó correctamente.",
+                        icon: "success",
+                        confirmButtonText: "Aceptar",
+                    });
+                    attendanceColumnVisible = false;
                 })
                 .catch((error) => {
                     console.error("Error al hacer la solicitud:", error);
                 });
         });
+        listarAlumnos();
     } else {
         alert("Algunas celdas están vacías.");
     }
@@ -219,17 +262,22 @@ function savelists() {
 function setupEventListeners() {
     btnGuardarLista.addEventListener("click", function () {
         savelists();
-        Swal.fire({
-            title: "¡Pase de lista exitoso!",
-            text: "La lista se guardó correctamente.",
-            icon: "success",
-            confirmButtonText: "Aceptar",
-        });
         listarAlumnos();
     });
     // List button click - add attendance column
     btnListar.addEventListener("click", function () {
-        toggleAttendanceColumn();
+        let criterio = Array.from(tabButtons)
+            .find((btn) => btn.classList.contains("active"))
+            .getAttribute("data-tab");
+        if (criterio === "ser") {
+            toggleAttendanceColumn();
+        } else {
+            Swal.fire(
+                "Cambiar a criterio 'Ser'",
+                "Para poder tomar lista, debes cambiar al criterio 'Ser'.",
+                "warning"
+            );
+        }
     });
 
     // Open modal for new partial
@@ -257,18 +305,6 @@ function setupEventListeners() {
             closeModalFunction();
         }
     });
-
-    comboBoxButton.addEventListener("click", () => {
-        const isVisible = comboBoxOptions.style.display === "block";
-        comboBoxOptions.style.display = isVisible ? "none" : "block";
-    });
-
-    // Cerrar si se hace clic fuera
-    document.addEventListener("click", (event) => {
-        if (!event.target.closest(".combo-box")) {
-            comboBoxOptions.style.display = "none";
-        }
-    });
 }
 
 // Toggle attendance column
@@ -291,16 +327,36 @@ function toggleAttendanceColumn() {
             const input = document.createElement("input");
             input.type = "number";
             input.classList.add("input-list");
+            input.classList.add("codigo-lista");
             input.setAttribute("onblur", "predeterminado(this)");
             input.addEventListener("click", function () {
                 this.select();
             });
+
             attendanceCell.appendChild(input);
             row.appendChild(attendanceCell);
         });
+        cuerpotabla.addEventListener("keydown", function (e) {
+            if (e.target.tagName === "INPUT" && e.target.type === "number") {
+                if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                    e.preventDefault();
+
+                    const allInputs = [
+                        ...cuerpotabla.querySelectorAll(".codigo-lista"),
+                    ];
+                    const index = allInputs.indexOf(e.target);
+
+                    if (e.key === "ArrowUp" && index > 0) {
+                        allInputs[index - 1].focus();
+                    }
+                    if (e.key === "ArrowDown" && index < allInputs.length - 1) {
+                        allInputs[index + 1].focus();
+                    }
+                }
+            }
+        });
 
         attendanceColumnVisible = true;
-        btnListar.textContent = "Ocultar Lista";
     } else {
         const studentsBody = document.getElementById("datos");
         const studentsTable = document.getElementById("students-table");
@@ -321,7 +377,6 @@ function toggleAttendanceColumn() {
         });
 
         attendanceColumnVisible = false;
-        btnListar.textContent = "Listar";
     }
 }
 function mostrarFormulario() {
@@ -334,20 +389,20 @@ function predeterminado(input) {
 }
 // Open modal
 function openModal() {
-    if (!seleccion) {
-        Swal.fire({
-            icon: "warning",
-            title: "Selección requerida",
-            text: "Por favor, seleccione una materia primero.",
-        });
-        return;
-    }
     modalParcial.style.display = "block";
-    document.getElementById("materia-id").value = selectedMatcve || "";
+
+    // Set default values
+    console.log(seleccion);
+    document.getElementById("materia-id").value =
+        seleccion.getAttribute("data-name") || "";
     document.getElementById("grupo-id").value =
         seleccion.getAttribute("data-grupo") || "";
-    document.getElementById("clave-id").value = selectedMatcve || "";
+    document.getElementById("clave-id").value =
+        seleccion.getAttribute("data-value") || "";
+    document.getElementById("periodo-id").value = "AGO25ENE26";
     document.getElementById("fecha-apertura").value = getCurrentDate();
+
+    // Calculate default closing date (30 days from now)
     const closingDate = new Date();
     closingDate.setDate(closingDate.getDate() + 30);
     document.getElementById("fecha-cierre").value = formatDate(closingDate);
@@ -416,6 +471,27 @@ function setupFormValidation() {
             alert("La suma de los criterios debe ser 100%");
             return;
         }
+        const formData = new FormData(formParcial);
+        console.log(formData);
+        fetch("php/agregarParcial.php", {
+            method: "POST",
+            body: formData,
+        })
+            .then((response) => {
+                console.log(response);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log("Respuesta del servidor:", data);
+                if (data["respuesta"]) {
+                }
+            })
+            .catch((error) => {
+                console.error("Error en fetch:", error);
+            });
 
         // In a real app, this would save the partial data
         alert("Parcial aperturado correctamente");
@@ -443,6 +519,7 @@ document.addEventListener("DOMContentLoaded", init);
 function iniciarMaterias() {
     fetch("php/materias.php")
         .then((response) => {
+            // console.log(response);
             if (!response.ok) {
                 throw new Error("Error al obtener los datos");
             }
@@ -455,12 +532,9 @@ function iniciarMaterias() {
 }
 function generarMaterias(options) {
     const container = document.getElementById("comboBoxOptions");
-    const button = document.getElementById("comboBoxButton");
     container.style.display = "none";
 
-    container.innerHTML =
-        '<div class="custom-header"><div>Clave</div><div>Grupo</div><div>Materia</div><div>Parcial</div><div>Asistencis</div></div>';
-
+    // Limpia antes de agregar
     options.forEach((option) => {
         const customOption = document.createElement("div");
         customOption.classList.add("custom-option");
@@ -479,21 +553,12 @@ function generarMaterias(options) {
 
         customOption.addEventListener("click", function () {
             seleccion = this;
-            selectedIdgru = option.idgru;
-            selectedMatcve = option.matcve; // Ahora matcve es dmat.id_matcve
-            button.textContent = `${option.matnom} (${option.matcve}, ${option.paqcve})`;
-            container.style.display = "none";
-            console.log(
-                "Materia seleccionada - idgru:",
-                selectedIdgru,
-                "matcve:",
-                selectedMatcve
-            );
             listarAlumnos();
         });
 
         container.appendChild(customOption);
     });
+    container.style.display = "none";
 }
 
 async function agregarTareasExistentes() {
@@ -501,12 +566,17 @@ async function agregarTareasExistentes() {
 
     const materia = seleccion.getAttribute("data-value");
     const grupo = seleccion.getAttribute("data-grupo");
+    const criterio = Array.from(tabButtons)
+        .find((btn) => btn.classList.contains("active"))
+        ?.getAttribute("data-tab");
 
     try {
         const res = await fetch(
             `php/obtener_tareas.php?materia=${encodeURIComponent(
                 materia
-            )}&grupo=${encodeURIComponent(grupo)}`
+            )}&grupo=${encodeURIComponent(grupo)}&criterio=${encodeURIComponent(
+                criterio
+            )}`
         );
         const data = await res.json();
 
@@ -525,6 +595,18 @@ async function agregarTareasExistentes() {
 }
 
 function listarAlumnos() {
+    if (!seleccion) {
+        Swal.fire(
+            "Selecciona una materia",
+            "Debes seleccionar una materia para ver la lista.",
+            "warning"
+        );
+        return;
+    }
+    let criterio = Array.from(tabButtons)
+        .find((btn) => btn.classList.contains("active"))
+        ?.getAttribute("data-tab");
+    console.log("Criterio activo:", criterio);
     const name = seleccion.getAttribute("data-name");
     console.log(name);
     comboBoxButton.textContent = name;
@@ -544,10 +626,12 @@ function listarAlumnos() {
             return response.text(); // Devuelve la respuesta como texto
         })
         .then((data) => {
-            console.log("Datos recibidos:", data);
+            // console.log("Datos recibidos:", data);
             // Muestra la respuesta en el div con ID "datos"
             tabla.innerHTML = data;
-            cargarlista();
+            if (criterio === "ser") {
+                cargarlista();
+            }
             agregarTareasExistentes();
         })
         .catch((error) => {
@@ -558,6 +642,7 @@ async function cargarlista() {
     const studentsTable = document.getElementById("students-table");
     const studentsBody = document.getElementById("datos");
     alert("Cargando lista de estudiantes...");
+    console.log("Cargando lista de estudiantes...");
     const res = await fetch(
         `php/obtener_listas.php?asignatura=${encodeURIComponent(
             "Matematicas"
@@ -565,9 +650,10 @@ async function cargarlista() {
     );
 
     alert("Lista de estudiantes cargada correctamente");
+    console.log("Lista de estudiantes cargada correctamente");
     const registros = await res.json();
 
-    console.log(registros);
+    // console.log(registros);
     if (!Array.isArray(registros)) {
         alert("Error al obtener los datos");
         return;
@@ -582,7 +668,7 @@ async function cargarlista() {
     fechasUnicas.forEach((fecha) => {
         console.log(fecha);
         const th = document.createElement("th");
-
+        th.classList.add("th-fecha");
         const div = document.createElement("div");
         const [dia, hora] = fecha.split(" ");
         div.innerHTML = `${dia}<br>${hora}`;
@@ -593,10 +679,7 @@ async function cargarlista() {
 
         th.appendChild(div); // Agrega el div al th
         // th.innerHTML = `${anio}/${mes}/${dia}`;
-
-        if (thead.appendChild(th)) {
-            console.log("Fecha agregada a la cabecera:", fecha);
-        }
+        thead.appendChild(th);
     });
 
     // Recorrer filas y agregar datos
@@ -619,10 +702,21 @@ async function cargarlista() {
             fila.appendChild(celda);
         });
     });
+    crearClik();
 }
 
 // Mostrar/ocultar el comboBox
+comboBoxButton.addEventListener("click", () => {
+    const isVisible = comboBoxOptions.style.display === "block";
+    comboBoxOptions.style.display = isVisible ? "none" : "block";
+});
 
+// Cerrar si se hace clic fuera
+document.addEventListener("click", (event) => {
+    if (!event.target.closest(".combo-box")) {
+        comboBoxOptions.style.display = "none";
+    }
+});
 // Mostrar/ocultar el formulario de tarea
 function mostrarFormulario() {
     const formTareas = document.getElementById("form-tareas");
@@ -641,6 +735,7 @@ document.getElementById("save-task-btn").addEventListener("click", function () {
     const descripcion = document
         .getElementById("task-description")
         .value.trim();
+    const criterio = document.getElementById("task-criterio").value.trim();
     const valor = document.getElementById("task-value").value.trim();
 
     if (!titulo || !descripcion || !valor) {
@@ -662,13 +757,13 @@ document.getElementById("save-task-btn").addEventListener("click", function () {
     }
 
     if (modoTarea === "nuevo") {
-        guardarNuevaTarea(titulo, descripcion, valor);
+        guardarNuevaTarea(titulo, descripcion, valor, criterio);
     } else if (modoTarea === "editar") {
-        modificarTareaExistente(titulo, descripcion, valor);
+        modificarTareaExistente(titulo, descripcion, valor, criterio);
     }
 });
 
-function guardarNuevaTarea(titulo, descripcion, valor) {
+function guardarNuevaTarea(titulo, descripcion, valor, criterio) {
     const materia = seleccion.getAttribute("data-value");
     const grupo = seleccion.getAttribute("data-grupo");
 
@@ -679,6 +774,7 @@ function guardarNuevaTarea(titulo, descripcion, valor) {
             titulo,
             descripcion,
             valor,
+            criterio,
             materia,
             grupo,
         }),
@@ -690,7 +786,7 @@ function guardarNuevaTarea(titulo, descripcion, valor) {
                     () => {
                         //agregarColumnaTarea(titulo, data.idtarea); // Usa el id real
                         ocultarFormularioTareas();
-                        //loadTasksData();
+                        loadTasksData();
                         listarAlumnos();
                     }
                 );
@@ -935,4 +1031,278 @@ function eliminarTarea(tarea) {
                 });
         }
     });
+}
+
+// Sidebar nueva parte uwu para mostrar asistencias/faltas
+function ensureAttendanceSidebar() {
+    let sidebar = document.getElementById("attendance-sidebar");
+    if (sidebar) return sidebar;
+
+    sidebar = document.createElement("div");
+    sidebar.id = "attendance-sidebar";
+    sidebar.style.position = "fixed";
+    sidebar.style.top = "80px";
+    sidebar.style.right = "20px";
+    sidebar.style.width = "320px";
+    sidebar.style.maxHeight = "70vh";
+    sidebar.style.overflowY = "auto";
+    sidebar.style.background = "#fff";
+    sidebar.style.border = "1px solid #ddd";
+    sidebar.style.boxShadow = "0 6px 18px rgba(0,0,0,0.08)";
+    sidebar.style.padding = "16px";
+    sidebar.style.borderRadius = "8px";
+    sidebar.style.zIndex = "9999";
+    sidebar.style.display = "none";
+
+    // Encabezado con cerrar
+    const header = document.createElement("div");
+    header.style.display = "flex";
+    header.style.justifyContent = "space-between";
+    header.style.alignItems = "center";
+    header.style.marginBottom = "10px";
+
+    const title = document.createElement("strong");
+    title.textContent = "Asistencias / Faltas";
+    header.appendChild(title);
+
+    const closeBtn = document.createElement("button");
+    closeBtn.textContent = "✕";
+    closeBtn.style.border = "none";
+    closeBtn.style.background = "transparent";
+    closeBtn.style.cursor = "pointer";
+    closeBtn.style.fontSize = "16px";
+    closeBtn.onclick = () => (sidebar.style.display = "none");
+    header.appendChild(closeBtn);
+
+    sidebar.appendChild(header);
+
+    const content = document.createElement("div");
+    content.id = "attendance-sidebar-content";
+    sidebar.appendChild(content);
+
+    document.body.appendChild(sidebar);
+    return sidebar;
+}
+
+// Renderiza el resumen en el panel lateral
+function renderAttendanceSidebar(info) {
+    // info: { nombre, codigo, counts: {0: n, 1: n, 2: n, 3: n}, total }
+    const sidebar = ensureAttendanceSidebar();
+    const content = document.getElementById("attendance-sidebar-content");
+    content.innerHTML = ""; // limpiar
+
+    const nombre = document.createElement("div");
+    nombre.style.marginBottom = "8px";
+    nombre.innerHTML = `<strong style="font-size:16px">${
+        info.nombre || "Alumno"
+    }</strong><br><small>Código: ${info.codigo}</small>`;
+    content.appendChild(nombre);
+
+    const ul = document.createElement("div");
+    ul.style.marginTop = "8px";
+    ul.innerHTML = `
+    <div style="margin:6px 0;"><strong>Total registros:</strong> ${
+        info.total
+    }</div>
+    <div style="margin:6px 0;"><strong style="color: #28a745">Asistencias (1):</strong> ${
+        info.counts[1] || 0
+    }</div>
+    <div style="margin:6px 0;"><strong style="color: #dc3545">Faltas (0):</strong> ${
+        info.counts[0] || 0
+    }</div>
+    <div style="margin:6px 0;"><strong style="color: #ffc107">Retardos (2):</strong> ${
+        info.counts[2] || 0
+    }</div>
+    <div style="margin:6px 0;"><strong style="color: #17a2b8">Justificaciones (3):</strong> ${
+        info.counts[3] || 0
+    }</div>
+  `;
+    content.appendChild(ul);
+
+    sidebar.style.display = "block";
+}
+
+// Obtener conteo leyendo la fila (si la tabla ya contiene columnas con los códigos)
+function getCountsFromRow(row) {
+    const counts = { 0: 0, 1: 0, 2: 0, 3: 0 };
+    const cells = Array.from(row.querySelectorAll("td"));
+
+    cells.forEach((td) => {
+        // prioridad: inputs dentro de la celda
+        const input = td.querySelector("input");
+        if (input) {
+            const v = String(input.value || "").trim();
+            if (/^[0-3]$/.test(v)) {
+                counts[Number(v)] = (counts[Number(v)] || 0) + 1;
+            }
+            return;
+        }
+
+        const text = td.textContent.trim();
+        if (/^[0-3]$/.test(text)) {
+            counts[Number(text)] = (counts[Number(text)] || 0) + 1;
+        }
+    });
+
+    const total = counts[0] + counts[1] + counts[2] + counts[3];
+    return { counts, total };
+}
+
+// Llama al endpoint obtener_asistencias.php y normaliza la respuesta
+function fetchCountsFromServer(codigo) {
+    // si no hay materia seleccionada, aún así intentamos usar texto del combo (si existe)
+    const materia = seleccion
+        ? seleccion.getAttribute("data-value")
+        : document.getElementById("comboBoxButton")?.textContent || "";
+    const parcialSeleccionado = document.getElementById("parcial-select")
+        ? document.getElementById("parcial-select").value
+        : "";
+
+    const url = `php/obtener_asistencias.php?asignatura=${encodeURIComponent(
+        materia
+    )}&parcial=${encodeURIComponent(
+        parcialSeleccionado
+    )}&codigo=${encodeURIComponent(codigo)}`;
+
+    return fetch(url)
+        .then((res) => {
+            if (!res.ok) throw new Error("Respuesta del servidor no OK");
+            return res.json();
+        })
+        .then((json) => {
+            // Normalizar estructura:
+            // Tu PHP devuelve: { status: 'ok', counts: { asistencias, faltas, retrasos, justificaciones }, total_registros }
+            // o en otra forma. Creamos un objeto con counts[0..3] y total.
+            if (json.status && json.status !== "ok") {
+                return json; // pasamos el error al manejador
+            }
+
+            // Si vino con json.counts que contiene nombres:
+            const source = json.counts || json;
+            const countsNormalized = {
+                0: Number(source.faltas ?? source[0] ?? 0),
+                1: Number(source.asistencias ?? source[1] ?? 0),
+                2: Number(source.retrasos ?? source[2] ?? 0),
+                3: Number(source.justificaciones ?? source[3] ?? 0),
+            };
+
+            const total = Number(
+                json.total_registros ??
+                    json.total ??
+                    countsNormalized[0] +
+                        countsNormalized[1] +
+                        countsNormalized[2] +
+                        countsNormalized[3]
+            );
+
+            return {
+                status: "ok",
+                counts: countsNormalized,
+                total,
+                nombre: json.nombre ?? null,
+            };
+        });
+}
+function crearClik() {
+    document.getElementById("datos")?.addEventListener("click", function (e) {
+        console.log("Click en tbody", e.target);
+        // busca la fila <tr> más cercana
+        const tr = e.target.closest("tr");
+        if (!tr) return;
+
+        // Marca visualmente la fila seleccionada
+        const previously = document.querySelector("#datos tr.selected-row");
+        if (previously) previously.classList.remove("selected-row");
+        tr.classList.add("selected-row");
+
+        // Extrae nombre y código según la estructura de tu fila.
+        // Ajusta los índices: supongamos columna 0 = nro, 1 = codigo, 2 = nombre (ejemplo)
+        let codigo = "";
+        let nombre = "";
+        const cells = tr.querySelectorAll("td");
+        if (cells.length >= 3) {
+            codigo = cells[1].textContent.trim();
+            nombre = cells[2].textContent.trim();
+        } else {
+            // si tu fila tiene otra estructura, intenta atributos data-*
+            codigo = tr.getAttribute("data-codigo") || tr.dataset.codigo || "";
+            nombre = tr.getAttribute("data-nombre") || tr.dataset.nombre || "";
+        }
+
+        // Primero intenta obtener conteos desde la propia fila (si hay columnas con datos)
+        const local = getCountsFromRow(tr);
+        if (local.total > 0) {
+            renderAttendanceSidebar({
+                nombre,
+                codigo,
+                counts: local.counts,
+                total: local.total,
+            });
+            return;
+        }
+
+        // Si la tabla no tiene columnas con los datos, pide al servidor
+        if (!codigo) {
+            renderAttendanceSidebar({
+                nombre: nombre || "Alumno",
+                codigo: "N/A",
+                counts: { 0: 0, 1: 0, 2: 0, 3: 0 },
+                total: 0,
+            });
+            return;
+        }
+
+        fetchCountsFromServer(codigo)
+            .then((resp) => {
+                if (resp.status === "ok") {
+                    renderAttendanceSidebar({
+                        nombre: resp.nombre || nombre,
+                        codigo,
+                        counts: resp.counts || { 0: 0, 1: 0, 2: 0, 3: 0 },
+                        total: resp.total || 0,
+                    });
+                } else {
+                    // Si el servidor devolvió error (estructura distinta)
+                    console.warn(
+                        "Error servidor obtener asistencias:",
+                        resp.message || resp
+                    );
+                    renderAttendanceSidebar({
+                        nombre,
+                        codigo,
+                        counts: { 0: 0, 1: 0, 2: 0, 3: 0 },
+                        total: 0,
+                    });
+                }
+            })
+            .catch((err) => {
+                console.error("Error fetch asistencias:", err);
+                renderAttendanceSidebar({
+                    nombre,
+                    codigo,
+                    counts: { 0: 0, 1: 0, 2: 0, 3: 0 },
+                    total: 0,
+                });
+            });
+    });
+}
+
+// Setup tab system
+function setupTabSystem() {
+    tabButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+            const tabName = this.getAttribute("data-tab");
+            switchTab(tabName);
+            listarAlumnos();
+        });
+    });
+}
+
+// Switch between tabs
+function switchTab(tabName) {
+    // Remove active class from all buttons and contents
+    tabButtons.forEach((btn) => btn.classList.remove("active"));
+
+    // Add active class to selected button and content
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add("active");
 }

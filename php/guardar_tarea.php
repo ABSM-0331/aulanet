@@ -8,13 +8,16 @@ try {
     $titulo = $_POST['titulo'] ?? null;
     $descripcion = $_POST['descripcion'] ?? null;
     $valor = $_POST['valor'] ?? null;
+    $criterio = $_POST['criterio'] ?? null;
     $materia = $_POST['materia'] ?? null;
     $grupo = $_POST['grupo'] ?? null;
 
     // Validación estricta
-    if (!isset($titulo, $descripcion, $valor, $materia, $grupo) || 
-        trim($titulo) === '' || trim($descripcion) === '' || 
-        trim($valor) === '' || trim($materia) === '' || trim($grupo) === '') {
+    if (
+        !isset($titulo, $descripcion, $valor, $materia, $grupo) ||
+        trim($titulo) === '' || trim($descripcion) === '' ||
+        trim($valor) === '' || trim($materia) === '' || trim($grupo) === ''
+    ) {
         echo json_encode(['status' => 'error', 'message' => 'Faltan datos obligatorios o están vacíos.']);
         exit;
     }
@@ -23,14 +26,15 @@ try {
     $db = DBC::get();
 
     // Preparar e insertar la tarea con grupo incluido
-    $stmt = $db->prepare("INSERT INTO tareas (titulo, descripcion, valor, materia, grupo) 
-                          VALUES (:titulo, :descripcion, :valor, :materia, :grupo)");
+    $stmt = $db->prepare("INSERT INTO tareas (titulo, descripcion, valor, materia, grupo, criterio) 
+                          VALUES (:titulo, :descripcion, :valor, :materia, :grupo, :criterio)");
     $stmt->execute([
         ':titulo' => $titulo,
         ':descripcion' => $descripcion,
         ':valor' => $valor,
         ':materia' => $materia,
-        ':grupo' => $grupo
+        ':grupo' => $grupo,
+        ':criterio' => $criterio
     ]);
 
     echo json_encode(['status' => 'ok', 'message' => 'Tarea guardada exitosamente.']);
