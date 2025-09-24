@@ -386,23 +386,29 @@ function predeterminado(input) {
 }
 // Open modal
 function openModal() {
-    modalParcial.style.display = "block";
-
     // Set default values
-    console.log(seleccion);
-    document.getElementById("materia-id").value =
-        seleccion.getAttribute("data-name") || "";
-    document.getElementById("grupo-id").value =
-        seleccion.getAttribute("data-grupo") || "";
-    document.getElementById("clave-id").value =
-        seleccion.getAttribute("data-value") || "";
-    document.getElementById("periodo-id").value = "AGO25ENE26";
-    document.getElementById("fecha-apertura").value = getCurrentDate();
+    if (seleccion) {
+        modalParcial.style.display = "block";
+        document.getElementById("materia-id").value =
+            seleccion.getAttribute("data-name") || "";
+        document.getElementById("grupo-id").value =
+            seleccion.getAttribute("data-grupo") || "";
+        document.getElementById("clave-id").value =
+            seleccion.getAttribute("data-value") || "";
+        document.getElementById("periodo-id").value = "AGO25ENE26";
+        document.getElementById("fecha-apertura").value = getCurrentDate();
 
-    // Calculate default closing date (30 days from now)
-    const closingDate = new Date();
-    closingDate.setDate(closingDate.getDate() + 30);
-    document.getElementById("fecha-cierre").value = formatDate(closingDate);
+        // Calculate default closing date (30 days from now)
+        const closingDate = new Date();
+        closingDate.setDate(closingDate.getDate() + 30);
+        document.getElementById("fecha-cierre").value = formatDate(closingDate);
+    } else {
+        Swal.fire(
+            "Selecciona una materia",
+            "Debes seleccionar una materia antes de aperturar un parcial.",
+            "warning"
+        );
+    }
 }
 
 // Close modal
