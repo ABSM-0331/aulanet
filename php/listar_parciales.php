@@ -1,7 +1,8 @@
 <?php
 require_once 'DBC.php';
 
-function listarParcialesExistentes() {
+function listarParcialesExistentes()
+{
     header('Content-Type: application/json');
 
     try {
@@ -16,7 +17,7 @@ function listarParcialesExistentes() {
         if (!empty($respuesta)) {
             echo json_encode($respuesta);
         } else {
-            echo json_encode(["error" => "No se encontraron registros en la tabla parciales."]);
+            echo json_encode(["error" => "No se encontró ningún parcial aperturado."]);
         }
     } catch (PDOException $e) {
         http_response_code(500);
@@ -28,4 +29,3 @@ function listarParcialesExistentes() {
 }
 
 listarParcialesExistentes();
-?>
