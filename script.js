@@ -1,3 +1,9 @@
+// Variables globales para almacenar la selección
+let selectedIdgru = null;
+let selectedMatcve = null;
+
+// Código para el botón "Ver Parciales"
+
 // DOM Elements
 let materiaSelect = document.getElementById("materia-select");
 const parcialSelect = document.getElementById("parcial-select");
@@ -175,8 +181,6 @@ function loadTasksData() {
                 "<p style='color:red;'>Hubo un error al cargar las tareas.</p>";
             console.error(err);
         });
-    // document.querySelector(".total-tareas").textContent = `${total}/40`;
-    // console.log("total" + total);
 }
 
 function closeModalTareasFunction() {
@@ -258,7 +262,6 @@ function savelists() {
 function setupEventListeners() {
     btnGuardarLista.addEventListener("click", function () {
         savelists();
-
         listarAlumnos();
     });
     // List button click - add attendance column
@@ -556,7 +559,8 @@ function generarMaterias(options) {
 
         customOption.addEventListener("click", function () {
             seleccion = this;
-            listarAlumnos();
+            // listarAlumnos();
+            listarParciales();
         });
 
         container.appendChild(customOption);
@@ -1308,4 +1312,98 @@ function switchTab(tabName) {
 
     // Add active class to selected button and content
     document.querySelector(`[data-tab="${tabName}"]`).classList.add("active");
+}
+
+function listarParciales() {
+    tablaParcialesExistentes.style.display = "block";
+    parcialesExistentesBody.innerHTML =
+        '<tr><td colspan="3">Cargando...</td></tr>';
+
+    fetch("php/listar_parciales.php")
+        .then((response) => {
+            console.log(
+                "parciales_existentes.js: Respuesta recibida de listar_parciales.php:",
+                response
+            );
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then((data) => {
+            console.log("parciales_existentes.js: Datos recibidos:", data);
+            parcialesExistentesBody.innerHTML = "";
+
+            if (data.error) {
+                console.log(
+                    "parciales_existentes.js: Error en la respuesta:",
+                    data.error
+                );
+                if (typeof Swal !== "undefined") {
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Error",
+                        text: data.error,
+                    });
+                } else {
+                    console.error(
+                        "parciales_existentes.js: SweetAlert2 no está cargado"
+                    );
+                    alert("Error: " + data.error);
+                }
+                parcialesExistentesBody.innerHTML = `<tr><td colspan="3">Error: ${data.error}</td></tr>`;
+                return;
+            }
+
+            if (!Array.isArray(data) || data.length === 0) {
+                console.log(
+                    "parciales_existentes.js: No hay registros para mostrar"
+                );
+                if (typeof Swal !== "undefined") {
+                    Swal.fire({
+                        icon: "info",
+                        title: "Sin datos",
+                        text: "No se encontraron parciales.",
+                    });
+                } else {
+                    console.error(
+                        "parciales_existentes.js: SweetAlert2 no está cargado"
+                    );
+                    alert("No se encontraron parciales.");
+                }
+                parcialesExistentesBody.innerHTML =
+                    '<tr><td colspan="3">No hay datos disponibles</td></tr>';
+                return;
+            }
+            listarAlumnos();
+            data.forEach((item) => {
+                console.log("parciales_existentes.js: Agregando fila:", item);
+                const row = document.createElement("tr");
+                row.innerHTML = `
+            <td>${item.numero_parcial || "-"}</td>
+            <td>${item.id_matcve || "-"}</td>
+            <td>${item.periodo || "-"}</td>
+          `;
+                parcialesExistentesBody.appendChild(row);
+            });
+        })
+        .catch((error) => {
+            console.error(
+                "parciales_existentes.js: Error fetching parciales:",
+                error
+            );
+            if (typeof Swal !== "undefined") {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Error al cargar los parciales: " + error.message,
+                });
+            } else {
+                console.error(
+                    "parciales_existentes.js: SweetAlert2 no está cargado"
+                );
+                alert("Error al cargar los parciales: " + error.message);
+            }
+            parcialesExistentesBody.innerHTML = `<tr><td colspan="3">Error al cargar los datos: ${error.message}</td></tr>`;
+        });
 }

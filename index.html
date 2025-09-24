@@ -7,6 +7,10 @@
     <title>AulaNet</title>
     <link rel="stylesheet" href="estilos.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- <script src="aperturar_parcial.js" defer></script> -->
+    <!-- <script src="parciales_existentes.js" defer></script> -->
+    <script src="script.js" defer></script>
+
 
 </head>
 
@@ -49,6 +53,9 @@
                         </div>
                     </div>
 
+
+
+
                     <div class="teacher-info">
                         <p><strong>Catedrático:</strong> <span id="teacher-id">136</span></p>
                         <p><strong>Nombre:</strong> <span id="teacher-name">Jorge Angel Santamaria Magaña</span></p>
@@ -64,6 +71,7 @@
                         <button id="btn-aperturar" class="btn btn-primary">Aperturar Parcial</button>
                         <button id="btn-actividades" onclick="abrirModal()" class="btn btn-secondary">Gestionar
                             Actividades</button>
+                        <!-- <button id="parcialesExistentes" class="btn btn-primary">Parciales Existentes</button> -->
                     </div>
                 </div>
 
@@ -85,6 +93,19 @@
                         </button>
                     </div>
 
+                    <div id="tablaParcialesExistentes">
+                        <table border="1" class="parcial-table">
+                            <thead>
+                                <tr>
+                                    <th>Número de Parcial</th>
+                                    <th>Clave de Materia</th>
+                                    <th>Periodo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="parcialesExistentesBody"></tbody>
+                        </table>
+                    </div>
+                    <!-- 
                     <div class="parcial-table-container">
                         <table class="parcial-table">
                             <thead>
@@ -116,9 +137,24 @@
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
+                    </div> -->
                 </div>
             </div>
+
+
+
+            <div id="tablaParciales" style="display: none; margin-top: 20px; margin-left: 20px;">
+                <table border="1" class="parcial-table">
+                    <thead>
+                        <tr>
+                            <th>Número Parcial</th>
+                            <th>Fecha Apertura</th>
+                        </tr>
+                    </thead>
+                    <tbody id="parcialesBody"></tbody>
+                </table>
+            </div>
+
 
             <!-- Main content - Right side with students list -->
             <div class="main-content">
@@ -156,6 +192,10 @@
                             <span>Selecione una materia y un parcial para ver la lista</span>
                         </div>
                     </div>
+
+                    <!-- nueva tabla -->
+
+
                 </div>
             </div>
         </div>
@@ -295,7 +335,10 @@
             <div id="task-list" style="margin-top: 20px;"></div>
         </div>
     </div>
-    <script src="script.js"></script>
+
+
+
+
 </body>
 
 </html>
