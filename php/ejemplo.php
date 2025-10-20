@@ -50,6 +50,7 @@ try {
             <td class='gray-cell'>" . $alumno['aluapp'] . " " . $alumno['aluapm'] . " " . $alumno['alunom'] . "</td>
             </tr>";
         }
+
         echo "</tbody>";
     } else {
         echo "No se encontraron registros.";
