@@ -121,13 +121,14 @@ function loadTasksData() {
     fetch(
         `php/obtener_tareas.php?materia=${encodeURIComponent(
             materia
-        )}&grupo=${encodeURIComponent(grupo)}`
+        )}&grupo=${encodeURIComponent(grupo)}
+        &criterio=${encodeURIComponent("hacer")}`
     )
         .then((res) => res.json())
         .then((data) => {
             if (data.status === "ok") {
                 const tareas = data.tareas;
-
+                console.log("Tareas obtenidas:", tareas);
                 if (tareas.length === 0) {
                     taskListContainer.innerHTML =
                         "<p>No hay tareas registradas para esta materia y grupo.</p>";
@@ -146,13 +147,13 @@ function loadTasksData() {
                     taskItem.style.backgroundColor = "#f9f9f9";
 
                     taskItem.innerHTML = `
-    <h4 style="margin: 0 0 5px 0;">${t.titulo}</h4>
-    <p style="margin: 0 0 5px 0;">${t.descripcion}</p>
-    <span style="font-weight: bold;">Valor: ${t.valor}</span>
-    <br><br>
-    <button class="btn btn-warning btn-editar">Editar</button>
-    <button class="btn btn-danger btn-eliminar">Eliminar</button>
-  `;
+                            <h4 style="margin: 0 0 5px 0;">${t.titulo}</h4>
+                            <p style="margin: 0 0 5px 0;">${t.descripcion}</p>
+                            <span style="font-weight: bold;">Valor: ${t.valor}</span>
+                            <br><br>
+                            <button class="btn btn-warning btn-editar">Editar</button>
+                            <button class="btn btn-danger btn-eliminar">Eliminar</button>
+                        `;
 
                     // Botones de editar y eliminar
                     const btnEditar = taskItem.querySelector(".btn-editar");
@@ -478,6 +479,7 @@ function setupFormValidation() {
             return;
         }
         const formData = new FormData(formParcial);
+        console.log(formParcial);
         console.log(formData);
         fetch("php/agregarParcial.php", {
             method: "POST",
@@ -493,6 +495,7 @@ function setupFormValidation() {
             .then((data) => {
                 console.log("Respuesta del servidor:", data);
                 if (data["respuesta"]) {
+                    listarParciales();
                 }
             })
             .catch((error) => {
@@ -533,6 +536,7 @@ function iniciarMaterias() {
         })
         .then((materias) => {
             generarMaterias(materias);
+            console.log(materias);
         })
         .catch((error) => console.error("Error:", error));
 }
