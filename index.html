@@ -213,6 +213,7 @@
             </div>
 
             <form id="form-parcial">
+                <input type="hidden" id="idgru-hidden" name="idgru">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="materia-id">Materia:</label>
@@ -290,6 +291,11 @@
             <div class="modalTareas-header">
                 <h2>Gestionar Tareas</h2>
                 <span class="total-tareas"></span>
+                            <div id="limits-info" style="margin-top: 10px; font-size: 0.9em; color: #555;">
+                <span id="hacer-limit">Hacer: 0 / 0</span> |
+                <span id="saber-limit">Saber: 0 / 0</span> |
+                <span id="ser-limit">Ser: 0 / 0</span>
+            </div>
                 <span class="close-modal" onclick="closeModalTareasFunction()">&times;</span>
             </div>
 

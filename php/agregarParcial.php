@@ -5,71 +5,80 @@ header('Content-Type: application/json');
 
 try {
     $db = DBC::get();
-    $materia = $_POST['materia'];
-    $grupo = $_POST['grupo'];
 
-    // // Obtener el ID de la materia
-    // $queryMateria = "SELECT id FROM dmat WHERE matnom = :materia LIMIT 1";
-    // $stmtMateria = $db->prepare($queryMateria);
-    // $stmtMateria->execute([':materia' => $materia]);
-    // $materiaId = $stmtMateria->fetchColumn(); // Obtiene el valor del ID de la materia
+    // Log para depuración (ver en error.log del servidor)
+    error_log("POST recibido en agregarParcial.php: " . print_r($_POST, true));
 
-    // if (!$materiaId) {
-    //     throw new Exception("No se encontró la materia con el nombre proporcionado.");
-    // }
+    // Campos requeridos
+    $required = ['numero_parcial', 'clave', 'idgru', 'periodo', 'ser', 'hacer', 'saber', 'total', 'restante', 'fecha_apertura', 'fecha_cierre'];
+    foreach ($required as $field) {
+        if (!isset($_POST[$field]) || trim($_POST[$field]) === '') {
+            throw new Exception("Falta el campo: $field");
+        }
+    }
 
-    // // Obtener el ID del grupo
-    // $queryGrupo = "SELECT id FROM dgru WHERE paqcve = :grupo AND matcve = :materia LIMIT 1";
-    // $stmtGrupo = $db->prepare($queryGrupo);
-    // $stmtGrupo->execute([':grupo' => $grupo, ':materia' => $materiaId]);
-    // $grupoId = $stmtGrupo->fetchColumn(); // Obtiene el valor del ID del grupo
+    // 1. Obtener el id_matcve REAL (entero) a partir de la clave string (matcve)
+    $stmtMat = $db->prepare("SELECT id_matcve FROM dmat WHERE matcve = :matcve LIMIT 1");
+    $stmtMat->execute([':matcve' => trim($_POST['clave'])]);
+    $id_matcve_real = $stmtMat->fetchColumn();
 
-    // if (!$grupoId) {
-    //     throw new Exception("No se encontró el grupo con el nombre proporcionado.");
-    // }
+    if (!$id_matcve_real) {
+        throw new Exception("No se encontró la materia con clave '{$_POST['clave']}' en la tabla dmat");
+    }
 
-    // Get POST data
+    error_log("Materia encontrada: clave {$_POST['clave']} → id_matcve = $id_matcve_real");
+    error_log("idgru recibido: {$_POST['idgru']}");
+
+    // 2. Preparar datos correctos para INSERT
     $data = [
-        'numero_parcial' => $_POST['numero_parcial'],
-        'id_matcve' => 1, // Usamos el ID de la materia obtenido
-        'idgru' => 1, // Usamos el ID del grupo obtenido
-        'numclave' => $_POST['clave'],
-        'periodo' => $_POST['periodo'],
-        'ser' => $_POST['ser'],
-        'hacer' => $_POST['hacer'],
-        'saber' => $_POST['saber'],
-        'total' => $_POST['total'],
-        'restante' => $_POST['restante'],
+        'numero_parcial' => (string)$_POST['numero_parcial'],  // varchar
+        'id_matcve'      => (int)$id_matcve_real,              // ¡¡AHORA SÍ ES EL ID ENTERO!!
+        'idgru'          => (int)$_POST['idgru'],              // ID del grupo (correcto desde JS)
+        'numclave'       => 0,                                 // Como en tu ejemplo
+        'periodo'        => $_POST['periodo'],
+        'ser'            => (float)$_POST['ser'],
+        'hacer'          => (float)$_POST['hacer'],
+        'saber'          => (float)$_POST['saber'],
+        'total'          => (float)$_POST['total'],
+        'restante'       => (float)$_POST['restante'],
         'fecha_apertura' => $_POST['fecha_apertura'],
-        'fecha_cierre' => $_POST['fecha_cierre']
+        'fecha_cierre'   => $_POST['fecha_cierre']
     ];
 
+    error_log("Datos finales para INSERT: " . print_r($data, true));
+
+    // 3. Ejecutar INSERT
     $query = "INSERT INTO parciales (
-        numero_parcial, id_matcve, idgru, numclave, 
-        periodo, ser, hacer, saber, total, restante,
+        numero_parcial, id_matcve, idgru, numclave, periodo,
+        ser, hacer, saber, total, restante,
         fecha_apertura, fecha_cierre
     ) VALUES (
-        :numero_parcial, :id_matcve, :idgru, :numclave,
-        :periodo, :ser, :hacer, :saber, :total, :restante,
+        :numero_parcial, :id_matcve, :idgru, :numclave, :periodo,
+        :ser, :hacer, :saber, :total, :restante,
         :fecha_apertura, :fecha_cierre
     )";
 
     $stmt = $db->prepare($query);
-    $stmt->execute($data);
-    http_response_code(200);
-    echo json_encode([
-        "respuesta" => true
-    ]);
-} catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode([
-        "respuesta" => false,
-        "message" => "Error al agregar el parcial: " . $e->getMessage()
-    ]);
+    $resultado = $stmt->execute($data);
+
+    if ($resultado) {
+        $id_insertado = $db->lastInsertId();
+        error_log("¡Parcial insertado exitosamente! idparcial = $id_insertado");
+        echo json_encode([
+            "respuesta" => true,
+            "message"   => "Parcial aperturado correctamente",
+            "idparcial" => $id_insertado
+        ]);
+    } else {
+        $errorInfo = $stmt->errorInfo();
+        error_log("Error al ejecutar INSERT: " . print_r($errorInfo, true));
+        throw new Exception("Falló el INSERT: " . $errorInfo[2]);
+    }
+
 } catch (Exception $e) {
-    http_response_code(400);
+    error_log("Error en agregarParcial.php: " . $e->getMessage());
     echo json_encode([
         "respuesta" => false,
-        "message" => $e->getMessage()
+        "message"   => $e->getMessage()
     ]);
 }

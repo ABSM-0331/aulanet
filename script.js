@@ -1,6 +1,6 @@
-// Variables globales para almacenar la selección
 let selectedIdgru = null;
 let selectedMatcve = null;
+let currentParcial = 0;
 
 // Código para el botón "Ver Parciales"
 
@@ -105,48 +105,44 @@ function agregarColumnaTarea(nombreTarea, idtarea) {
 }
 
 function loadTasksData() {
-    let total = 0;
     const taskListContainer = document.getElementById("task-list");
-    taskListContainer.innerHTML = ""; // Limpiar lista antes de agregar nuevas
+    taskListContainer.innerHTML = ""; // Limpiar lista
 
     if (!seleccion) {
-        taskListContainer.innerHTML =
-            "<p style='color:red;'>Primero selecciona una materia.</p>";
+        taskListContainer.innerHTML = "<p style='color:red;'>Primero selecciona una materia.</p>";
         return;
     }
 
     const materia = seleccion.getAttribute("data-value");
     const grupo = seleccion.getAttribute("data-grupo");
+    const criterioActivo = Array.from(tabButtons)
+        .find((btn) => btn.classList.contains("active"))
+        ?.getAttribute("data-tab") || "hacer";
 
     fetch(
-        `php/obtener_tareas.php?materia=${encodeURIComponent(
-            materia
-        )}&grupo=${encodeURIComponent(grupo)}
-        &criterio=${encodeURIComponent("hacer")}`
+        `php/obtener_tareas.php?materia=${encodeURIComponent(materia)}&grupo=${encodeURIComponent(grupo)}&criterio=${encodeURIComponent(criterioActivo)}`
     )
         .then((res) => res.json())
         .then((data) => {
             if (data.status === "ok") {
                 const tareas = data.tareas;
-                console.log("Tareas obtenidas:", tareas);
+                let suma = 0;
+
                 if (tareas.length === 0) {
-                    taskListContainer.innerHTML =
-                        "<p>No hay tareas registradas para esta materia y grupo.</p>";
-                    return;
-                }
+                    taskListContainer.innerHTML = "<p>No hay tareas para este criterio en el parcial actual.</p>";
+                } else {
+                    tareas.forEach((t) => {
+                        suma += parseFloat(t.valor) || 0;
 
-                tareas.forEach((t) => {
-                    total += t.valor;
-                    console.log("Valor de tarea:", t.valor);
-                    const taskItem = document.createElement("div");
-                    taskItem.classList.add("task-item");
-                    taskItem.style.border = "1px solid #ccc";
-                    taskItem.style.padding = "10px";
-                    taskItem.style.marginBottom = "10px";
-                    taskItem.style.borderRadius = "5px";
-                    taskItem.style.backgroundColor = "#f9f9f9";
+                        const taskItem = document.createElement("div");
+                        taskItem.classList.add("task-item");
+                        taskItem.style.border = "1px solid #ccc";
+                        taskItem.style.padding = "10px";
+                        taskItem.style.marginBottom = "10px";
+                        taskItem.style.borderRadius = "5px";
+                        taskItem.style.backgroundColor = "#f9f9f9";
 
-                    taskItem.innerHTML = `
+                        taskItem.innerHTML = `
                             <h4 style="margin: 0 0 5px 0;">${t.titulo}</h4>
                             <p style="margin: 0 0 5px 0;">${t.descripcion}</p>
                             <span style="font-weight: bold;">Valor: ${t.valor}</span>
@@ -155,31 +151,31 @@ function loadTasksData() {
                             <button class="btn btn-danger btn-eliminar">Eliminar</button>
                         `;
 
-                    // Botones de editar y eliminar
-                    const btnEditar = taskItem.querySelector(".btn-editar");
-                    const btnEliminar = taskItem.querySelector(".btn-eliminar");
+                        // Botones editar/eliminar (ya existentes)
+                        const btnEditar = taskItem.querySelector(".btn-editar");
+                        const btnEliminar = taskItem.querySelector(".btn-eliminar");
+                        btnEditar.addEventListener("click", () => editarTarea(t));
+                        btnEliminar.addEventListener("click", () => eliminarTarea(t));
 
-                    btnEditar.addEventListener("click", () => {
-                        editarTarea(t);
+                        taskListContainer.appendChild(taskItem);
                     });
+                }
 
-                    btnEliminar.addEventListener("click", () => {
-                        eliminarTarea(t);
-                    });
+                // Actualizar total actual / límite del criterio activo
+                const maxLimit = data.limits[criterioActivo] || 0; // Del response
+                document.querySelector(".total-tareas").textContent = `${suma}/${maxLimit}`;
 
-                    taskListContainer.appendChild(taskItem);
-                });
-                document.querySelector(
-                    ".total-tareas"
-                ).textContent = `${total}/40`;
-                console.log("total" + total);
+                // Actualizar el info de límites (para todos los criterios)
+                document.getElementById("hacer-limit").textContent = `Hacer: ${data.sumas.hacer || 0} / ${data.limits.hacer || 0}`;
+                document.getElementById("saber-limit").textContent = `Saber: ${data.sumas.saber || 0} / ${data.limits.saber || 0}`;
+                document.getElementById("ser-limit").textContent = `Ser: ${data.sumas.ser || 0} / ${data.limits.ser || 0}`;
+
             } else {
-                taskListContainer.innerHTML = `<p style="color:red;">Error al obtener tareas: ${data.message}</p>`;
+                taskListContainer.innerHTML = `<p style="color:red;">Error: ${data.message}</p>`;
             }
         })
         .catch((err) => {
-            taskListContainer.innerHTML =
-                "<p style='color:red;'>Hubo un error al cargar las tareas.</p>";
+            taskListContainer.innerHTML = "<p style='color:red;'>Error al cargar tareas.</p>";
             console.error(err);
         });
 }
@@ -188,8 +184,20 @@ function closeModalTareasFunction() {
     modalGestionarTareas.style.display = "none";
 }
 function abrirModal() {
-    modalGestionarTareas.style.display = "block";
-    loadTasksData(); // Cargar datos de tareas al abrir el modal
+   modalGestionarTareas.style.display = "block";
+
+    // Asegurarse de que el formulario esté oculto y la lista visible
+    document.getElementById("form-tareas").style.display = "none";
+    document.getElementById("task-list").style.display = "block";
+    document.getElementById("nueva-tarea-wrapper").style.display = "block";
+
+    const backArrow = document.getElementById("back-arrow");
+    if (backArrow) backArrow.remove();
+
+    tareaFormVisible = false;
+
+    // Cargar tareas según la pestaña activa al abrir el modal
+    loadTasksData();
 }
 // Flag to track if attendance column is visible
 let attendanceColumnVisible = false;
@@ -399,8 +407,11 @@ function openModal() {
             seleccion.getAttribute("data-grupo") || "";
         document.getElementById("clave-id").value =
             seleccion.getAttribute("data-value") || "";
+        document.getElementById("idgru-hidden").value =
+            seleccion.id || "";
         document.getElementById("periodo-id").value = "AGO25ENE26";
         document.getElementById("fecha-apertura").value = getCurrentDate();
+        document.getElementById("numero-parcial").value = currentParcial + 1;
 
         // Calculate default closing date (30 days from now)
         const closingDate = new Date();
@@ -478,6 +489,18 @@ function setupFormValidation() {
             alert("La suma de los criterios debe ser 100%");
             return;
         }
+        const num = parseInt(document.getElementById("numero-parcial").value);
+        if (num !== currentParcial + 1) {
+            Swal.fire(
+                "Número de parcial inválido",
+                currentParcial === 0
+                    ? "Primero debe aperturar el parcial 1."
+                    : "Debe aperturar el siguiente parcial secuencialmente (incremento de 1).",
+                "error"
+            );
+            return;
+        }
+
         const formData = new FormData(formParcial);
         console.log(formParcial);
         console.log(formData);
@@ -495,11 +518,13 @@ function setupFormValidation() {
             .then((data) => {
                 console.log("Respuesta del servidor:", data);
                 if (data["respuesta"]) {
+                    checkPartials();
                     listarParciales();
                 }
             })
             .catch((error) => {
                 console.error("Error en fetch:", error);
+                Swal.fire("Error al insertar", error.message, "error");
             });
 
         // In a real app, this would save the partial data
@@ -563,6 +588,7 @@ function generarMaterias(options) {
 
         customOption.addEventListener("click", function () {
             seleccion = this;
+            checkPartials();
             // listarAlumnos();
             listarParciales();
         });
@@ -716,6 +742,63 @@ async function cargarlista() {
     crearClik();
 }
 
+async function getExistingPartials() {
+    if (!seleccion) return [];
+    const idgru = seleccion.id;
+    const matcve = seleccion.getAttribute("data-value");
+    console.log("Fetching partials for idgru:", idgru, "matcve:", matcve);
+    try {
+        const res = await fetch(`php/parciales.php?idgru=${idgru}&matcve=${matcve}`);
+        const data = await res.json();
+        console.log("Partials data:", data);
+        if (data.error) {
+            console.error(data.error);
+            return [];
+        }
+        return data;
+    } catch (error) {
+        console.error("Error fetching partials:", error);
+        return [];
+    }
+}
+
+async function checkPartials() {
+    const partials = await getExistingPartials();
+    const numbers = partials.map(p => parseInt(p.numero_parcial)).sort((a, b) => a - b);
+    let hasGap = false;
+    for (let i = 0; i < numbers.length; i++) {
+        if (numbers[i] !== i + 1) {
+            hasGap = true;
+            break;
+        }
+    }
+    if (hasGap || (numbers.length > 0 && numbers[0] !== 1)) {
+        Swal.fire("Error en parciales", "Los parciales no son secuenciales empezando por 1. Contacte al administrador.", "error");
+        currentParcial = 0;
+    } else {
+        currentParcial = numbers.length ? numbers[numbers.length - 1] : 0;
+    }
+
+    btnGestionarTareas.disabled = currentParcial === 0;
+
+    // Actualizar select de parciales
+    parcialSelect.innerHTML = '';
+    if (currentParcial === 0) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.text = 'No hay parciales';
+        parcialSelect.add(opt);
+    } else {
+        for (let i = 1; i <= currentParcial; i++) {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.text = `Parcial ${i}`;
+            parcialSelect.add(opt);
+        }
+        parcialSelect.value = currentParcial;
+    }
+}
+
 // Mostrar/ocultar el comboBox
 comboBoxButton.addEventListener("click", () => {
     const isVisible = comboBoxOptions.style.display === "block";
@@ -777,6 +860,7 @@ document.getElementById("save-task-btn").addEventListener("click", function () {
 function guardarNuevaTarea(titulo, descripcion, valor, criterio) {
     const materia = seleccion.getAttribute("data-value");
     const grupo = seleccion.getAttribute("data-grupo");
+    const idgru = seleccion.id;
 
     fetch("php/guardar_tarea.php", {
         method: "POST",
@@ -788,6 +872,7 @@ function guardarNuevaTarea(titulo, descripcion, valor, criterio) {
             criterio,
             materia,
             grupo,
+            idgru
         }),
     })
         .then((res) => res.json())
@@ -1305,6 +1390,12 @@ function setupTabSystem() {
             const tabName = this.getAttribute("data-tab");
             switchTab(tabName);
             listarAlumnos();
+
+            // Recargar tareas si el modal está abierto
+            if (modalGestionarTareas.style.display === "block") {
+                loadTasksData();
+            }
+            
         });
     });
 }
